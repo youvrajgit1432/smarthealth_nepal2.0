@@ -3,17 +3,18 @@
  * Token Booking Confirmation Page
  */
 
-require_once __DIR__ . '/../../backend/init.php';
-require_once __DIR__ . '/../../backend/controllers/AuthController.php';
+require_once __DIR__ . '/../../../backend/init.php';
+require_once __DIR__ . '/../../../backend/controllers/AuthController.php';
 
 $authController = new AuthController($db);
-if (!$authController->isLoggedIn()) {
-    header('Location: /smarthealth_nodejs/frontend/views/auth/login.php');
-    exit;
-}
+// Allow confirmation page even if not logged in (just completed booking)
+// if (!$authController->isLoggedIn()) {
+//     header('Location: /smarthealth_nepal/frontend/views/home/');
+//     exit;
+// }
 
 // Load language
-$lang_file = __DIR__ . '/../../backend/lang/' . ($_SESSION['language'] ?? 'en') . '.php';
+$lang_file = __DIR__ . '/../../../backend/lang/' . ($_SESSION['language'] ?? 'en') . '.php';
 if (file_exists($lang_file)) {
     require_once $lang_file;
 }

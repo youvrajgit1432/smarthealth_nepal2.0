@@ -37,7 +37,7 @@
             </a>
         </li>
         <li style="border-top: 2px solid #34495e; margin-top: 20px;">
-            <a href="#" onclick="logout()">
+            <a href="javascript:void(0);" onclick="if(confirm('Are you sure you want to logout?')) { window.location.href='/smarthealth_nepal/admin/frontend/views/auth/logout.php'; }">
                 <i class="fas fa-sign-out-alt"></i> <?php echo $lang['logout'] ?? 'Logout'; ?>
             </a>
         </li>
@@ -52,7 +52,7 @@
                 <i class="fas fa-user"></i> 
                 <?php echo $_SESSION['admin_email'] ?? 'Admin'; ?>
             </span>
-            <a href="/smarthealth_nepal/admin/frontend/views/auth/logout.php" class="btn btn-sm btn-outline-danger">
+            <a href="javascript:void(0);" onclick="if(confirm('Are you sure you want to logout?')) { window.location.href='/smarthealth_nepal/admin/frontend/views/auth/logout.php'; }" class="btn btn-sm btn-outline-danger">
                 <?php echo $lang['logout'] ?? 'Logout'; ?>
             </a>
         </div>

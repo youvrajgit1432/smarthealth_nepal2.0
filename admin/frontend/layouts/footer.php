@@ -13,13 +13,5 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 <!-- Admin JS -->
 <script src="/smarthealth_nepal/admin/frontend/js/admin.js"></script>
-
-<script>
-function logout() {
-    if (confirm('<?php echo $lang['confirm_logout'] ?? 'Are you sure you want to logout?'; ?>')) {
-        window.location.href = '/smarthealth_nepal/admin/frontend/views/auth/logout.php';
-    }
-}
-</script>
 </body>
 </html>

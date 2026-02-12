@@ -212,6 +212,56 @@ if (!isset($_SESSION['language'])) {
             margin: 0;
             opacity: 0.9;
         }
+        
+        /* User Avatar Badge */
+        .user-avatar-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.35);
+            color: #003d99;
+            font-weight: bold;
+            font-size: 0.9rem;
+            border: 2px solid rgba(255, 255, 255, 0.6);
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+        }
+        
+        .nav-link.dropdown-toggle:hover .user-avatar-badge {
+            background-color: rgba(255, 255, 255, 0.5);
+            border-color: white;
+            color: #003d99;
+            transform: scale(1.15);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Dropdown menu styling */
+        .dropdown-menu {
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            border-radius: 0.5rem;
+        }
+        
+        .dropdown-item {
+            transition: all 0.2s ease;
+        }
+        
+        .dropdown-item:hover {
+            background-color: #030609;
+            border-left: 3px solid var(--primary-color);
+            padding-left: calc(1rem - 3px);
+        }
+        
+        .dropdown-item i {
+            width: 20px;
+            margin-right: 0.75rem;
+            text-align: center;
+            color: var(--primary-color);
+        }
+    
     </style>
 </head>
 <body>
@@ -279,7 +329,7 @@ if (!isset($_SESSION['language'])) {
                         </div>
                     </li>
 
-                    <!-- Login Button (Secondary Action) -->
+                    <!-- Login Button & User Profile (Secondary Action) -->
                     <?php if (!isset($_SESSION['user_id'])): ?>
                     <li class="nav-item">
                         <a href="/smarthealth_nepal/frontend/views/auth/login.php" class="btn btn-outline-light btn-sm">
@@ -287,10 +337,56 @@ if (!isset($_SESSION['language'])) {
                         </a>
                     </li>
                     <?php else: ?>
-                    <li class="nav-item">
-                        <a href="/smarthealth_nepal/frontend/views/auth/login.php?action=logout" class="btn btn-outline-light btn-sm">
-                            <i class="fas fa-sign-out-alt"></i> <span class="ms-1"><?php echo isset($lang['logout']) ? $lang['logout'] : 'Logout'; ?></span>
+                    <!-- User Profile Dropdown -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="userProfileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <span class="user-avatar-badge">
+                                <?php 
+                                    $userName = $_SESSION['user_name'] ?? 'User';
+                                    $userInitials = '';
+                                    if (!empty($userName)) {
+                                        $parts = explode(' ', $userName);
+                                        $userInitials = strtoupper(substr($parts[0], 0, 1));
+                                        if (isset($parts[1])) {
+                                            $userInitials .= strtoupper(substr($parts[1], 0, 1));
+                                        }
+                                    }
+                                    echo $userInitials ?: 'U';
+                                ?>
+                            </span>
                         </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userProfileDropdown">
+                            <li>
+                                <h6 class="dropdown-header"><?php echo $userName; ?></h6>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item" href="/smarthealth_nepal/frontend/views/profile/index.php">
+                                    <i class="fas fa-user-circle"></i> <?php echo isset($lang['profile']) ? $lang['profile'] : 'My Profile'; ?>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="/smarthealth_nepal/frontend/views/profile/health_history.php">
+                                    <i class="fas fa-history"></i> <?php echo isset($lang['health_history']) ? $lang['health_history'] : 'Health History'; ?>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="/smarthealth_nepal/frontend/views/profile/bookings.php">
+                                    <i class="fas fa-clipboard-list"></i> <?php echo isset($lang['my_bookings']) ? $lang['my_bookings'] : 'My Bookings'; ?>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="/smarthealth_nepal/frontend/views/profile/diseases.php">
+                                    <i class="fas fa-notes-medical"></i> <?php echo isset($lang['my_conditions']) ? $lang['my_conditions'] : 'My Conditions'; ?>
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item" href="/smarthealth_nepal/frontend/views/auth/login.php?action=logout">
+                                    <i class="fas fa-sign-out-alt"></i> <?php echo isset($lang['logout']) ? $lang['logout'] : 'Logout'; ?>
+                                </a>
+                            </li>
+                        </ul>
                     </li>
                     <?php endif; ?>
 

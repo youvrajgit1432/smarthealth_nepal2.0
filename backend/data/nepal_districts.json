@@ -1,0 +1,394 @@
+{
+  "divisions": [
+    {
+      "district": "Bhaktapur",
+      "province": "Bagmati",
+      "local_levels": [
+        {
+          "name": "Bhaktapur Municipality",
+          "type": "Municipality",
+          "wards": 14,
+          "priority_rating": 1
+        },
+        {
+          "name": "Madhyapur Thimi Municipality",
+          "type": "Municipality",
+          "wards": 16,
+          "priority_rating": 2
+        },
+        {
+          "name": "Changunarayan Municipality",
+          "type": "Municipality",
+          "wards": 9,
+          "priority_rating": 3
+        },
+        {
+          "name": "Suryabinayak Municipality",
+          "type": "Municipality",
+          "wards": 9,
+          "priority_rating": 2
+        }
+      ]
+    },
+    {
+      "district": "Kathmandu",
+      "province": "Bagmati",
+      "local_levels": [
+        {
+          "name": "Kathmandu Metropolitan City",
+          "type": "Metropolitan City",
+          "wards": 32,
+          "priority_rating": 1
+        },
+        {
+          "name": "Budhanilkantha Municipality",
+          "type": "Municipality",
+          "wards": 13,
+          "priority_rating": 3
+        },
+        {
+          "name": "Tarakeshwar Municipality",
+          "type": "Municipality",
+          "wards": 11,
+          "priority_rating": 3
+        },
+        {
+          "name": "Gokarneshwor Municipality",
+          "type": "Municipality",
+          "wards": 9,
+          "priority_rating": 3
+        },
+        {
+          "name": "Chandragiri Municipality",
+          "type": "Municipality",
+          "wards": 15,
+          "priority_rating": 2
+        },
+        {
+          "name": "Tokha Municipality",
+          "type": "Municipality",
+          "wards": 11,
+          "priority_rating": 3
+        },
+        {
+          "name": "Kageshwari-Manohara Municipality",
+          "type": "Municipality",
+          "wards": 9,
+          "priority_rating": 3
+        },
+        {
+          "name": "Nagarjun Municipality",
+          "type": "Municipality",
+          "wards": 10,
+          "priority_rating": 3
+        },
+        {
+          "name": "Kirtipur Municipality",
+          "type": "Municipality",
+          "wards": 10,
+          "priority_rating": 2
+        },
+        {
+          "name": "Shankharapur Municipality",
+          "type": "Municipality",
+          "wards": 9,
+          "priority_rating": 3
+        },
+        {
+          "name": "Dakshinkali Municipality",
+          "type": "Municipality",
+          "wards": 9,
+          "priority_rating": 2
+        }
+      ]
+    },
+    {
+      "district": "Kavre",
+      "province": "Bagmati",
+      "local_levels": [
+        {
+          "name": "Banepa Municipality",
+          "type": "Municipality",
+          "wards": 14,
+          "priority_rating": 1
+        },
+        {
+          "name": "Dhulikhel Municipality",
+          "type": "Municipality",
+          "wards": 12,
+          "priority_rating": 2
+        },
+        {
+          "name": "Mandandeupur Municipality",
+          "type": "Municipality",
+          "wards": 12,
+          "priority_rating": 2
+        },
+        {
+          "name": "Namobuddha Municipality",
+          "type": "Municipality",
+          "wards": 11,
+          "priority_rating": 3
+        },
+        {
+          "name": "Panauti Municipality",
+          "type": "Municipality",
+          "wards": 12,
+          "priority_rating": 3
+        },
+        {
+          "name": "Panchkhal Municipality",
+          "type": "Municipality",
+          "wards": 13,
+          "priority_rating": 2
+        },
+        {
+          "name": "Bethanchok Rural Municipality",
+          "type": "Rural Municipality",
+          "wards": 6,
+          "priority_rating": 4
+        },
+        {
+          "name": "Bhumlu Rural Municipality",
+          "type": "Rural Municipality",
+          "wards": 10,
+          "priority_rating": 4
+        },
+        {
+          "name": "Chauri Deurali Rural Municipality",
+          "type": "Rural Municipality",
+          "wards": 9,
+          "priority_rating": 4
+        },
+        {
+          "name": "Khani Khola Rural Municipality",
+          "type": "Rural Municipality",
+          "wards": 7,
+          "priority_rating": 4
+        },
+        {
+          "name": "Mahabharat Rural Municipality",
+          "type": "Rural Municipality",
+          "wards": 8,
+          "priority_rating": 4
+        },
+        {
+          "name": "Roshi Rural Municipality",
+          "type": "Rural Municipality",
+          "wards": 12,
+          "priority_rating": 4
+        },
+        {
+          "name": "Temal Rural Municipality",
+          "type": "Rural Municipality",
+          "wards": 9,
+          "priority_rating": 4
+        }
+      ]
+    },
+    {
+      "district": "Lalitpur",
+      "province": "Bagmati",
+      "local_levels": [
+        {
+          "name": "Lalitpur Metropolitan City",
+          "type": "Metropolitan City",
+          "wards": 29,
+          "priority_rating": 1
+        },
+        {
+          "name": "Godawari Municipality",
+          "type": "Municipality",
+          "wards": 14,
+          "priority_rating": 2
+        },
+        {
+          "name": "Mahalaxmi Municipality",
+          "type": "Municipality",
+          "wards": 10,
+          "priority_rating": 2
+        },
+        {
+          "name": "Bagmati Rural Municipality",
+          "type": "Rural Municipality",
+          "wards": 7,
+          "priority_rating": 3
+        },
+        {
+          "name": "Mahankal Rural Municipality",
+          "type": "Rural Municipality",
+          "wards": 6,
+          "priority_rating": 3
+        },
+        {
+          "name": "Konjyosom Rural Municipality",
+          "type": "Rural Municipality",
+          "wards": 5,
+          "priority_rating": 3
+        }
+      ]
+    },
+    {
+      "district": "Chitwan",
+      "province": "Bagmati",
+      "local_levels": [
+        {
+          "name": "Bharatpur Metropolitan City",
+          "type": "Metropolitan City",
+          "wards": 29,
+          "priority_rating": 1
+        },
+        {
+          "name": "Ratnanagar Municipality",
+          "type": "Municipality",
+          "wards": 14,
+          "priority_rating": 2
+        },
+        {
+          "name": "Narayanghat Municipality",
+          "type": "Municipality",
+          "wards": 12,
+          "priority_rating": 2
+        },
+        {
+          "name": "Bheriganga Municipality",
+          "type": "Municipality",
+          "wards": 12,
+          "priority_rating": 3
+        },
+        {
+          "name": "Khairahani Municipality",
+          "type": "Municipality",
+          "wards": 14,
+          "priority_rating": 3
+        },
+        {
+          "name": "Ichchhakamana Rural Municipality",
+          "type": "Rural Municipality",
+          "wards": 10,
+          "priority_rating": 4
+        },
+        {
+          "name": "Kawasoti Rural Municipality",
+          "type": "Rural Municipality",
+          "wards": 9,
+          "priority_rating": 4
+        }
+      ]
+    },
+    {
+      "district": "Morang",
+      "province": "Koshi",
+      "local_levels": [
+        {
+          "name": "Biratnagar Metropolitan City",
+          "type": "Metropolitan City",
+          "wards": 19,
+          "priority_rating": 1
+        },
+        {
+          "name": "Letang Municipality",
+          "type": "Municipality",
+          "wards": 12,
+          "priority_rating": 2
+        },
+        {
+          "name": "Rasuwakot Municipality",
+          "type": "Municipality",
+          "wards": 11,
+          "priority_rating": 2
+        },
+        {
+          "name": "Sundarharaincha Municipality",
+          "type": "Municipality",
+          "wards": 15,
+          "priority_rating": 3
+        },
+        {
+          "name": "Pathari Rural Municipality",
+          "type": "Rural Municipality",
+          "wards": 8,
+          "priority_rating": 4
+        }
+      ]
+    },
+    {
+      "district": "Sunsari",
+      "province": "Koshi",
+      "local_levels": [
+        {
+          "name": "Itahari Sub-Metropolitan City",
+          "type": "Sub-Metropolitan City",
+          "wards": 20,
+          "priority_rating": 1
+        },
+        {
+          "name": "Dharan Sub-Metropolitan City",
+          "type": "Sub-Metropolitan City",
+          "wards": 20,
+          "priority_rating": 1
+        },
+        {
+          "name": "Inaruwa Municipality",
+          "type": "Municipality",
+          "wards": 12,
+          "priority_rating": 2
+        },
+        {
+          "name": "Ramdhuni Municipality",
+          "type": "Municipality",
+          "wards": 14,
+          "priority_rating": 2
+        },
+        {
+          "name": "Harisiddhi Municipality",
+          "type": "Municipality",
+          "wards": 15,
+          "priority_rating": 3
+        },
+        {
+          "name": "Kanyam Rural Municipality",
+          "type": "Rural Municipality",
+          "wards": 9,
+          "priority_rating": 4
+        }
+      ]
+    },
+    {
+      "district": "Kaski",
+      "province": "Gandaki",
+      "local_levels": [
+        {
+          "name": "Pokhara Metropolitan City",
+          "type": "Metropolitan City",
+          "wards": 33,
+          "priority_rating": 1
+        },
+        {
+          "name": "Madi Rural Municipality",
+          "type": "Rural Municipality",
+          "wards": 12,
+          "priority_rating": 3
+        },
+        {
+          "name": "Annapurna Rural Municipality",
+          "type": "Rural Municipality",
+          "wards": 11,
+          "priority_rating": 3
+        },
+        {
+          "name": "Machhapuchchhre Rural Municipality",
+          "type": "Rural Municipality",
+          "wards": 9,
+          "priority_rating": 4
+        },
+        {
+          "name": "Rupa Rural Municipality",
+          "type": "Rural Municipality",
+          "wards": 7,
+          "priority_rating": 4
+        }
+      ]
+    }
+  ]
+}

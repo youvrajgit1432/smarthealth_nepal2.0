@@ -4,9 +4,9 @@
  * Display and manage active tokens in the queue
  */
 
-require_once __DIR__ . '/../../backend/init.php';
-require_once __DIR__ . '/../../backend/controllers/DashboardController.php';
-require_once __DIR__ . '/../../backend/models/TokenModel.php';
+require_once __DIR__ . '/../../../backend/init.php';
+require_once __DIR__ . '/../../../backend/controllers/DashboardController.php';
+require_once __DIR__ . '/../../../backend/models/TokenModel.php';
 
 // Check admin login
 if (!isset($_SESSION['admin_id'])) {

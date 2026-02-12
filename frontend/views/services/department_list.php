@@ -16,7 +16,18 @@ require_once __DIR__ . '/../layouts/header.php';
             </div>
             <div class="card-body p-4">
                 <div class="row">
-                    <?php foreach ($depts['departments'] as $dept): ?>
+                    <?php 
+                    // Remove duplicate departments (keep first occurrence of each ID)
+                    $seenDeptIds = array();
+                    $uniqueDepts = array();
+                    foreach ($depts['departments'] as $dept) {
+                        if (!isset($seenDeptIds[$dept['id']])) {
+                            $seenDeptIds[$dept['id']] = true;
+                            $uniqueDepts[] = $dept;
+                        }
+                    }
+                    
+                    foreach ($uniqueDepts as $dept): ?>
                     <div class="col-md-6 mb-4">
                         <div class="card h-100">
                             <div class="card-body">

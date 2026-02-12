@@ -12,6 +12,41 @@ class UserModel {
     }
     
     /**
+     * Get user by phone number
+     */
+    public function getUserByPhone($phoneNumber) {
+        $phoneNumber = $this->db->real_escape_string($phoneNumber);
+        $result = $this->db->query("SELECT * FROM users WHERE phone_number = '$phoneNumber'");
+        
+        if ($result && $result->num_rows > 0) {
+            return $result->fetch_assoc();
+        }
+        
+        return null;
+    }
+    
+    /**
+     * Create new user
+     */
+    public function create($userData) {
+        try {
+            $phoneNumber = $this->db->real_escape_string($userData['phone_number'] ?? '');
+            $fullName = $this->db->real_escape_string($userData['full_name'] ?? 'User');
+            
+            $query = "INSERT INTO users (phone_number, full_name) VALUES ('$phoneNumber', '$fullName')";
+            
+            if ($this->db->query($query)) {
+                return $this->db->insert_id;
+            }
+            
+            return false;
+        } catch (Exception $e) {
+            error_log("User Creation Error: " . $e->getMessage());
+            return false;
+        }
+    }
+    
+    /**
      * Register or get user by phone number
      */
     public function findOrCreateByPhone($phoneNumber) {

@@ -11,7 +11,7 @@ if (session_id() != "") {
 }
 session_destroy();
 
-// Redirect to login or home
-header('Location: /smarthealth_nepal/');
+// Redirect to login page
+header('Location: /smarthealth_nepal/admin/frontend/views/auth/login.php');
 exit;
 ?>

@@ -3,7 +3,7 @@
  * Admin Dashboard
  */
 
-require_once __DIR__ . '/../../backend/init.php';
+require_once __DIR__ . '/../../../backend/init.php';
 
 // Check admin authentication
 if (!isset($_SESSION['admin_id'])) {
@@ -12,7 +12,7 @@ if (!isset($_SESSION['admin_id'])) {
 }
 
 // Load language
-$lang_file = __DIR__ . '/../../backend/lang/' . ($_SESSION['admin_language'] ?? 'en') . '.php';
+$lang_file = __DIR__ . '/../../../backend/lang/' . ($_SESSION['admin_language'] ?? 'en') . '.php';
 if (file_exists($lang_file)) {
     require_once $lang_file;
 }

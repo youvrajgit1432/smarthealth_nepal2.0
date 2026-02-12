@@ -4,13 +4,19 @@
  */
 session_start();
 
-require_once __DIR__ . '/../../backend/config/database.php';
-require_once __DIR__ . '/../../backend/config/language.php';
+// Load database configuration
+require_once __DIR__ . '/../../../../backend/config/database.php';
+require_once __DIR__ . '/../../../../backend/config/language.php';
+
+// Make db available globally
+global $db;
 
 // Load language
-$lang_file = __DIR__ . '/../../backend/lang/' . ($_SESSION['admin_language'] ?? 'en') . '.php';
+$lang_file = __DIR__ . '/../../../../backend/lang/' . ($_SESSION['admin_language'] ?? 'en') . '.php';
 if (file_exists($lang_file)) {
     require_once $lang_file;
+} else {
+    $lang = [];
 }
 
 // Check if already logged in
@@ -30,34 +36,54 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = $lang['email_password_required'] ?? 'Email and password are required';
     } else {
         // Check admin credentials
-        $sql = "SELECT id, email, password_hash, role FROM admins WHERE email = ?";
-        $stmt = $connection->prepare($sql);
-        $stmt->bind_param('s', $email);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        
-        if ($result->num_rows > 0) {
-            $admin = $result->fetch_assoc();
-            
-            // Verify password
-            if (password_verify($password, $admin['password_hash'])) {
-                // Set session variables
-                $_SESSION['admin_id'] = $admin['id'];
-                $_SESSION['admin_email'] = $admin['email'];
-                $_SESSION['admin_role'] = $admin['role'];
-                $_SESSION['is_admin'] = true;
-                
-                // Redirect to dashboard
-                header('Location: /smarthealth_nepal/admin/frontend/views/dashboard/');
-                exit;
-            } else {
-                $error = $lang['invalid_credentials'] ?? 'Invalid email or password';
-            }
+        if (!$db) {
+            $error = 'Database connection error. Please contact administrator.';
         } else {
-            $error = $lang['user_not_found'] ?? 'Admin user not found';
+            // Query to find admin by email or username
+            $sql = "SELECT id, username, password_hash, role, email FROM admins WHERE email = ? OR username = ?";
+            $stmt = $db->prepare($sql);
+            
+            if (!$stmt) {
+                $error = 'Database error: ' . htmlspecialchars($db->error);
+            } else {
+                $stmt->bind_param('ss', $email, $email);
+                $stmt->execute();
+                $result = $stmt->get_result();
+                
+                if ($result->num_rows > 0) {
+                    $admin = $result->fetch_assoc();
+                    
+                    // Verify password
+                    if (password_verify($password, $admin['password_hash'])) {
+                        // Set session variables
+                        $_SESSION['admin_id'] = $admin['id'];
+                        $_SESSION['admin_email'] = $admin['email'];
+                        $_SESSION['admin_username'] = $admin['username'];
+                        $_SESSION['admin_role'] = $admin['role'];
+                        $_SESSION['is_admin'] = true;
+                        
+                        // Update last login
+                        $update_sql = "UPDATE admins SET last_login = NOW() WHERE id = ?";
+                        $update_stmt = $db->prepare($update_sql);
+                        if ($update_stmt) {
+                            $update_stmt->bind_param('i', $admin['id']);
+                            $update_stmt->execute();
+                            $update_stmt->close();
+                        }
+                        
+                        // Redirect to dashboard
+                        header('Location: /smarthealth_nepal/admin/frontend/views/dashboard/');
+                        exit;
+                    } else {
+                        $error = $lang['invalid_credentials'] ?? 'Invalid email or password';
+                    }
+                } else {
+                    $error = $lang['user_not_found'] ?? 'Admin user not found';
+                }
+                
+                $stmt->close();
+            }
         }
-        
-        $stmt->close();
     }
 }
 

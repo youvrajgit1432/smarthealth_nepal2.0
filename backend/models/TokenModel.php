@@ -12,23 +12,37 @@ class TokenModel {
     }
     
     /**
-     * Create new token for user
+     * Create new token for user with hospital tracking
+     * Token number format: hospital_id + YYYYMMDD + serial_number
+     * Example: Hospital 12 on 2026-02-12 with serial 3 = 1220260212003
      */
-    public function createToken($userId, $departmentId, $priority, $triageData) {
+    public function createToken($userId, $departmentId, $priority, $triageData, $hospitalId = null, $locationData = null) {
         $userId = (int)$userId;
         $departmentId = (int)$departmentId;
         $priority = $this->db->real_escape_string($priority);
         $triageJson = json_encode($triageData);
         $triageJson = $this->db->real_escape_string($triageJson);
         
-        // Generate token number
-        $date = date('Ymd');
+        // If no hospital ID provided, use a default (e.g., 1)
+        if (!$hospitalId) {
+            $hospitalId = 1;
+        }
+        $hospitalId = (int)$hospitalId;
+        
+        // Generate token number with format: hospital_id + YYYYMMDD + serial
+        $date = date('Ymd');  // YYYYMMDD format
+        
+        // Find max serial number for this hospital on this date
         $result = $this->db->query(
-            "SELECT MAX(token_number) as max_token FROM tokens 
-             WHERE department_id = $departmentId AND DATE(created_at) = CURDATE()"
+            "SELECT COUNT(*) as serial FROM tokens 
+             WHERE hospital_id = $hospitalId AND DATE(created_at) = CURDATE()"
         );
         $row = $result->fetch_assoc();
-        $tokenNumber = ($row['max_token'] ?? 0) + 1;
+        $serialNumber = ($row['serial'] ?? 0) + 1;
+        
+        // Combine: hospital_id + YYYYMMDD + serial number (padded with zeros)
+        // Example: 12 + 20260212 + 003 = 1220260212003
+        $tokenNumber = (int)("{$hospitalId}{$date}" . str_pad($serialNumber, 3, '0', STR_PAD_LEFT));
         
         // Calculate estimated wait time
         $waitTimeResult = $this->db->query(
@@ -42,16 +56,29 @@ class TokenModel {
         $waitData = $waitTimeResult->fetch_assoc();
         $estimatedWait = ($waitData['queue_count'] ?? 0) * ($waitData['avg_service_time'] ?? 30);
         
+        // Extract location data if provided
+        $userDistrict = null;
+        $userMunicipality = null;
+        $userWard = null;
+        
+        if ($locationData && is_array($locationData)) {
+            $userDistrict = $this->db->real_escape_string($locationData['district'] ?? '');
+            $userMunicipality = $this->db->real_escape_string($locationData['municipality'] ?? '');
+            $userWard = $this->db->real_escape_string($locationData['ward'] ?? '');
+        }
+        
         // Determine if emergency
         $isEmergency = $priority === 'Emergency' ? 1 : 0;
         $isChronicFollowup = $priority === 'Chronic' ? 1 : 0;
         
         $query = "INSERT INTO tokens (
-                    user_id, department_id, token_number, priority, triage_reason,
+                    user_id, department_id, hospital_id, token_number, priority, triage_reason,
+                    user_district, user_municipality, user_ward,
                     status, estimated_wait_time, is_emergency, is_chronic_followup,
                     created_at
                   ) VALUES (
-                    $userId, $departmentId, $tokenNumber, '$priority', '$triageJson',
+                    $userId, $departmentId, $hospitalId, $tokenNumber, '$priority', '$triageJson',
+                    '$userDistrict', '$userMunicipality', '$userWard',
                     'Active', $estimatedWait, $isEmergency, $isChronicFollowup,
                     NOW()
                   )";
@@ -61,6 +88,7 @@ class TokenModel {
                 'id' => $this->db->insert_id,
                 'token_number' => $tokenNumber,
                 'priority' => $priority,
+                'hospital_id' => $hospitalId,
                 'estimated_wait_time' => $estimatedWait,
                 'created_at' => date('Y-m-d H:i:s')
             ];
@@ -192,9 +220,14 @@ class TokenModel {
         // Mark old token as rescheduled
         $this->db->query("UPDATE tokens SET status = 'Rescheduled' WHERE id = $tokenId");
         
-        // Create new token
+        // Create new token with same hospital and location data
         $triageData = json_decode($token['triage_reason'], true);
-        return $this->createToken($token['user_id'], $token['department_id'], $token['priority'], $triageData);
+        $locationData = [
+            'district' => $token['user_district'],
+            'municipality' => $token['user_municipality'],
+            'ward' => $token['user_ward']
+        ];
+        return $this->createToken($token['user_id'], $token['department_id'], $token['priority'], $triageData, $token['hospital_id'], $locationData);
     }
     
     /**

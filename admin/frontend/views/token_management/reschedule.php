@@ -5,8 +5,8 @@
  */
 
 require_once __DIR__ . '/../../../backend/init.php';
-require_once __DIR__ . '/../../../admin/backend/controllers/DashboardController.php';
-require_once __DIR__ . '/../../../admin/backend/models/TokenModel.php';
+require_once __DIR__ . '/../../../backend/controllers/DashboardController.php';
+require_once __DIR__ . '/../../../backend/models/TokenModel.php';
 
 // Check admin login
 if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
@@ -15,7 +15,7 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
 }
 
 // Load admin language
-$lang_file = __DIR__ . '/../../../admin/backend/lang/' . ($_SESSION['language'] ?? 'en') . '.php';
+$lang_file = __DIR__ . '/../../../backend/lang/' . ($_SESSION['language'] ?? 'en') . '.php';
 if (file_exists($lang_file)) {
     require_once $lang_file;
 }

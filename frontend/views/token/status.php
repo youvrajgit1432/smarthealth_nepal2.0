@@ -51,6 +51,17 @@ require_once __DIR__ . '/../layouts/header.php';
         $load = $status['department_load'];
         $position = $status['queue_position'];
         
+        // Get hospital information if hospital_id exists
+        $hospitalInfo = null;
+        if (!empty($token['hospital_id'])) {
+            $hospitalResult = $db->query("SELECT hl.id, hl.hospital_name, hl.district, hl.municipality, hl.phone, hl.address 
+                                         FROM hospital_locations hl 
+                                         WHERE hl.id = " . intval($token['hospital_id']) . " LIMIT 1");
+            if ($hospitalResult && $hospitalResult->num_rows > 0) {
+                $hospitalInfo = $hospitalResult->fetch_assoc();
+            }
+        }
+        
         // Status badge color
         $statusColor = $token['status'] === 'Called' ? 'danger' : 'success';
         
@@ -113,6 +124,24 @@ require_once __DIR__ . '/../layouts/header.php';
                         </p>
                     </div>
                 </div>
+                
+                <!-- Hospital Info -->
+                <?php if ($hospitalInfo): ?>
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <h6 class="text-muted"><i class="fas fa-hospital"></i> <?php echo $lang['hospital_name'] ?? 'Hospital'; ?></h6>
+                        <p class="h5"><?php echo htmlspecialchars($hospitalInfo['hospital_name']); ?></p>
+                        <small class="text-muted">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <?php echo htmlspecialchars($hospitalInfo['district']); ?>
+                        </small>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-muted"><i class="fas fa-phone"></i> <?php echo $lang['contact'] ?? 'Contact'; ?></h6>
+                        <p class="h5"><?php echo htmlspecialchars($hospitalInfo['phone'] ?? 'N/A'); ?></p>
+                    </div>
+                </div>
+                <?php endif; ?>
                 
                 <!-- Queue Information -->
                 <div class="row mb-4">
