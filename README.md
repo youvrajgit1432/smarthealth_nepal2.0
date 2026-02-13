@@ -40,6 +40,10 @@ SmartHealth Nepal is an innovative, bilingual healthcare management system desig
 | **Language Support** | English (en), Nepali (नेपाली) |
 
 
+### 📁 Presentation Slide:https://gamma.app/docs/SmartHealth-Nepal-m4cmh3z414ohdqb?mode=doc
+
+
+
 ### 📁 Project Structure
 
 ```
