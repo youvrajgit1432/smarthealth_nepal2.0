@@ -21,6 +21,7 @@ if (isset($_GET['lang'])) {
 // Load backend
 require_once __DIR__ . '/../../../backend/init.php';
 require_once __DIR__ . '/../../../backend/controllers/TokenController.php';
+require_once __DIR__ . '/../../../backend/helpers/TimeHelper.php';
 
 // Load language
 $lang = [];
@@ -261,7 +262,7 @@ require_once __DIR__ . '/../layouts/header.php';
                     <div class="alert alert-info" role="alert">
                         <i class="fas fa-info-circle me-2"></i>
                         <?php echo $lang['estimated_wait'] ?? 'Estimated Wait Time'; ?>: 
-                        <strong><?php echo htmlspecialchars($token['estimated_wait_time'] ?? 'N/A'); ?> minutes</strong>
+                        <strong><?php echo isset($token['estimated_wait_time']) ? TimeHelper::formatWaitTime($token['estimated_wait_time']) : 'N/A'; ?></strong>
                     </div>
                     <?php elseif ($token['status'] === 'Completed'): ?>
                     <div class="alert alert-success" role="alert">

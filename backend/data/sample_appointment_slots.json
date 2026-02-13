@@ -1,0 +1,472 @@
+{
+  "description": "Sample Appointment Slots Data for Testing",
+  "generated_date": "2026-02-12",
+  "test_hospitals": [
+    {
+      "hospital_id": 12,
+      "hospital_name": "Bir Hospital",
+      "district": "Kathmandu",
+      "municipality": "Kathmandu Metropolitan City",
+      "departments": [
+        {
+          "department_id": 1,
+          "department_name": "General Medicine",
+          "slots": [
+            {
+              "id": 1,
+              "slot_date": "2026-02-12",
+              "day_name": "Thursday",
+              "formatted_date": "Thu, Feb 12",
+              "time_window_start": "08:00",
+              "time_window_end": "12:00",
+              "slot_type": "Early Morning",
+              "max_capacity": 15,
+              "booked_count": 0,
+              "available_spots": 15,
+              "is_available": true
+            },
+            {
+              "id": 2,
+              "slot_date": "2026-02-12",
+              "day_name": "Thursday",
+              "formatted_date": "Thu, Feb 12",
+              "time_window_start": "14:00",
+              "time_window_end": "17:00",
+              "slot_type": "Afternoon",
+              "max_capacity": 12,
+              "booked_count": 0,
+              "available_spots": 12,
+              "is_available": true
+            },
+            {
+              "id": 3,
+              "slot_date": "2026-02-13",
+              "day_name": "Friday",
+              "formatted_date": "Fri, Feb 13",
+              "time_window_start": "08:00",
+              "time_window_end": "12:00",
+              "slot_type": "Early Morning",
+              "max_capacity": 15,
+              "booked_count": 3,
+              "available_spots": 12,
+              "is_available": true
+            },
+            {
+              "id": 4,
+              "slot_date": "2026-02-13",
+              "day_name": "Friday",
+              "formatted_date": "Fri, Feb 13",
+              "time_window_start": "14:00",
+              "time_window_end": "17:00",
+              "slot_type": "Afternoon",
+              "max_capacity": 12,
+              "booked_count": 2,
+              "available_spots": 10,
+              "is_available": true
+            },
+            {
+              "id": 5,
+              "slot_date": "2026-02-15",
+              "day_name": "Sunday",
+              "formatted_date": "Sun, Feb 15",
+              "time_window_start": "08:00",
+              "time_window_end": "12:00",
+              "slot_type": "Early Morning",
+              "max_capacity": 15,
+              "booked_count": 5,
+              "available_spots": 10,
+              "is_available": true
+            },
+            {
+              "id": 6,
+              "slot_date": "2026-02-15",
+              "day_name": "Sunday",
+              "formatted_date": "Sun, Feb 15",
+              "time_window_start": "14:00",
+              "time_window_end": "17:00",
+              "slot_type": "Afternoon",
+              "max_capacity": 12,
+              "booked_count": 7,
+              "available_spots": 5,
+              "is_available": true
+            },
+            {
+              "id": 7,
+              "slot_date": "2026-02-16",
+              "day_name": "Monday",
+              "formatted_date": "Mon, Feb 16",
+              "time_window_start": "08:00",
+              "time_window_end": "12:00",
+              "slot_type": "Early Morning",
+              "max_capacity": 15,
+              "booked_count": 0,
+              "available_spots": 15,
+              "is_available": true
+            },
+            {
+              "id": 8,
+              "slot_date": "2026-02-16",
+              "day_name": "Monday",
+              "formatted_date": "Mon, Feb 16",
+              "time_window_start": "14:00",
+              "time_window_end": "17:00",
+              "slot_type": "Afternoon",
+              "max_capacity": 12,
+              "booked_count": 0,
+              "available_spots": 12,
+              "is_available": true
+            },
+            {
+              "id": 9,
+              "slot_date": "2026-02-17",
+              "day_name": "Tuesday",
+              "formatted_date": "Tue, Feb 17",
+              "time_window_start": "08:00",
+              "time_window_end": "12:00",
+              "slot_type": "Early Morning",
+              "max_capacity": 15,
+              "booked_count": 4,
+              "available_spots": 11,
+              "is_available": true
+            },
+            {
+              "id": 10,
+              "slot_date": "2026-02-17",
+              "day_name": "Tuesday",
+              "formatted_date": "Tue, Feb 17",
+              "time_window_start": "14:00",
+              "time_window_end": "17:00",
+              "slot_type": "Afternoon",
+              "max_capacity": 12,
+              "booked_count": 6,
+              "available_spots": 6,
+              "is_available": true
+            },
+            {
+              "id": 11,
+              "slot_date": "2026-02-18",
+              "day_name": "Wednesday",
+              "formatted_date": "Wed, Feb 18",
+              "time_window_start": "08:00",
+              "time_window_end": "12:00",
+              "slot_type": "Early Morning",
+              "max_capacity": 15,
+              "booked_count": 0,
+              "available_spots": 15,
+              "is_available": true
+            },
+            {
+              "id": 12,
+              "slot_date": "2026-02-18",
+              "day_name": "Wednesday",
+              "formatted_date": "Wed, Feb 18",
+              "time_window_start": "14:00",
+              "time_window_end": "17:00",
+              "slot_type": "Afternoon",
+              "max_capacity": 12,
+              "booked_count": 1,
+              "available_spots": 11,
+              "is_available": true
+            },
+            {
+              "id": 13,
+              "slot_date": "2026-02-19",
+              "day_name": "Thursday",
+              "formatted_date": "Thu, Feb 19",
+              "time_window_start": "08:00",
+              "time_window_end": "12:00",
+              "slot_type": "Early Morning",
+              "max_capacity": 15,
+              "booked_count": 2,
+              "available_spots": 13,
+              "is_available": true
+            },
+            {
+              "id": 14,
+              "slot_date": "2026-02-19",
+              "day_name": "Thursday",
+              "formatted_date": "Thu, Feb 19",
+              "time_window_start": "14:00",
+              "time_window_end": "17:00",
+              "slot_type": "Afternoon",
+              "max_capacity": 12,
+              "booked_count": 0,
+              "available_spots": 12,
+              "is_available": true
+            },
+            {
+              "id": 15,
+              "slot_date": "2026-02-20",
+              "day_name": "Friday",
+              "formatted_date": "Fri, Feb 20",
+              "time_window_start": "08:00",
+              "time_window_end": "12:00",
+              "slot_type": "Early Morning",
+              "max_capacity": 15,
+              "booked_count": 8,
+              "available_spots": 7,
+              "is_available": true
+            },
+            {
+              "id": 16,
+              "slot_date": "2026-02-20",
+              "day_name": "Friday",
+              "formatted_date": "Fri, Feb 20",
+              "time_window_start": "14:00",
+              "time_window_end": "17:00",
+              "slot_type": "Afternoon",
+              "max_capacity": 12,
+              "booked_count": 3,
+              "available_spots": 9,
+              "is_available": true
+            }
+          ]
+        },
+        {
+          "department_id": 2,
+          "department_name": "Emergency",
+          "slots": [
+            {
+              "id": 17,
+              "slot_date": "2026-02-12",
+              "day_name": "Thursday",
+              "formatted_date": "Thu, Feb 12",
+              "time_window_start": "08:00",
+              "time_window_end": "12:00",
+              "slot_type": "Early Morning",
+              "max_capacity": 20,
+              "booked_count": 0,
+              "available_spots": 20,
+              "is_available": true
+            },
+            {
+              "id": 18,
+              "slot_date": "2026-02-12",
+              "day_name": "Thursday",
+              "formatted_date": "Thu, Feb 12",
+              "time_window_start": "14:00",
+              "time_window_end": "17:00",
+              "slot_type": "Afternoon",
+              "max_capacity": 15,
+              "booked_count": 2,
+              "available_spots": 13,
+              "is_available": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "hospital_id": 16,
+      "hospital_name": "Kantipur Hospital",
+      "district": "Kathmandu",
+      "municipality": "Kathmandu Metropolitan City",
+      "departments": [
+        {
+          "department_id": 7,
+          "department_name": "Cardiology",
+          "slots": [
+            {
+              "id": 19,
+              "slot_date": "2026-02-12",
+              "day_name": "Thursday",
+              "formatted_date": "Thu, Feb 12",
+              "time_window_start": "08:00",
+              "time_window_end": "12:00",
+              "slot_type": "Early Morning",
+              "max_capacity": 10,
+              "booked_count": 0,
+              "available_spots": 10,
+              "is_available": true
+            },
+            {
+              "id": 20,
+              "slot_date": "2026-02-12",
+              "day_name": "Thursday",
+              "formatted_date": "Thu, Feb 12",
+              "time_window_start": "14:00",
+              "time_window_end": "17:00",
+              "slot_type": "Afternoon",
+              "max_capacity": 8,
+              "booked_count": 0,
+              "available_spots": 8,
+              "is_available": true
+            },
+            {
+              "id": 21,
+              "slot_date": "2026-02-13",
+              "day_name": "Friday",
+              "formatted_date": "Fri, Feb 13",
+              "time_window_start": "08:00",
+              "time_window_end": "12:00",
+              "slot_type": "Early Morning",
+              "max_capacity": 10,
+              "booked_count": 1,
+              "available_spots": 9,
+              "is_available": true
+            },
+            {
+              "id": 22,
+              "slot_date": "2026-02-13",
+              "day_name": "Friday",
+              "formatted_date": "Fri, Feb 13",
+              "time_window_start": "14:00",
+              "time_window_end": "17:00",
+              "slot_type": "Afternoon",
+              "max_capacity": 8,
+              "booked_count": 3,
+              "available_spots": 5,
+              "is_available": true
+            },
+            {
+              "id": 23,
+              "slot_date": "2026-02-15",
+              "day_name": "Sunday",
+              "formatted_date": "Sun, Feb 15",
+              "time_window_start": "08:00",
+              "time_window_end": "12:00",
+              "slot_type": "Early Morning",
+              "max_capacity": 10,
+              "booked_count": 0,
+              "available_spots": 10,
+              "is_available": true
+            },
+            {
+              "id": 24,
+              "slot_date": "2026-02-15",
+              "day_name": "Sunday",
+              "formatted_date": "Sun, Feb 15",
+              "time_window_start": "14:00",
+              "time_window_end": "17:00",
+              "slot_type": "Afternoon",
+              "max_capacity": 8,
+              "booked_count": 2,
+              "available_spots": 6,
+              "is_available": true
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "api_response_example": {
+    "get_dates_response": {
+      "success": true,
+      "message": "Available dates retrieved",
+      "data": [
+        {
+          "slot_date": "2026-02-12",
+          "day_name": "Thursday",
+          "formatted_date": "Thu, Feb 12",
+          "total_slots": 2,
+          "available_spots": "27"
+        },
+        {
+          "slot_date": "2026-02-13",
+          "day_name": "Friday",
+          "formatted_date": "Fri, Feb 13",
+          "total_slots": 2,
+          "available_spots": "22"
+        },
+        {
+          "slot_date": "2026-02-15",
+          "day_name": "Sunday",
+          "formatted_date": "Sun, Feb 15",
+          "total_slots": 2,
+          "available_spots": "15"
+        }
+      ]
+    },
+    "get_slots_response_for_2026_02_12": {
+      "success": true,
+      "message": "Available slots retrieved",
+      "data": [
+        {
+          "id": 1,
+          "slot_type": "Early Morning",
+          "time_window_start": "08:00:00",
+          "time_window_end": "12:00:00",
+          "max_capacity": 15,
+          "booked_count": 0,
+          "available_spots": 15,
+          "is_available": 1
+        },
+        {
+          "id": 2,
+          "slot_type": "Afternoon",
+          "time_window_start": "14:00:00",
+          "time_window_end": "17:00:00",
+          "max_capacity": 12,
+          "booked_count": 0,
+          "available_spots": 12,
+          "is_available": 1
+        }
+      ]
+    }
+  },
+  "testing_guide": {
+    "hospital_id": 12,
+    "department_id": 1,
+    "test_endpoints": [
+      {
+        "name": "Get Available Dates",
+        "method": "GET",
+        "url": "http://localhost/smarthealth_nepal/backend/api/get_appointment_slots.php?action=get_dates&hospital_id=12&department_id=1",
+        "expected_response": "List of dates with available appointment slots",
+        "example_dates": [
+          "2026-02-12 (27 available spots)",
+          "2026-02-13 (22 available spots)",
+          "2026-02-15 (15 available spots)"
+        ]
+      },
+      {
+        "name": "Get Time Slots for Specific Date",
+        "method": "GET",
+        "url": "http://localhost/smarthealth_nepal/backend/api/get_appointment_slots.php?action=get_slots&hospital_id=12&department_id=1&slot_date=2026-02-12",
+        "expected_response": "List of available time windows with spot counts",
+        "example_slots": [
+          "08:00 - 12:00 (Early Morning, 15 spots)",
+          "14:00 - 17:00 (Afternoon, 12 spots)"
+        ]
+      }
+    ],
+    "form_flow": {
+      "step_1": "User enters phone number and verifies OTP",
+      "step_2": "User selects location (District → Municipality → Ward)",
+      "step_3": "System loads nearby hospitals for location",
+      "step_4": "User selects Hospital and Department",
+      "step_5": "Appointment dates dropdown loads automatically",
+      "step_6": "User selects preferred date",
+      "step_7": "Time window slots load for that date",
+      "step_8": "User selects time window (Early Morning or Afternoon)",
+      "step_9": "User selects booking type (Regular Check-up or Urgent)",
+      "step_10": "User completes health assessment and books token"
+    },
+    "testing_scenarios": {
+      "scenario_1": {
+        "name": "Test Bir Hospital - General Medicine",
+        "hospital_id": 12,
+        "department_id": 1,
+        "expected_dates": 9,
+        "expected_slots_per_date": 2,
+        "total_available_spots": 95
+      },
+      "scenario_2": {
+        "name": "Test Bir Hospital - Emergency (Limited Slots)",
+        "hospital_id": 12,
+        "department_id": 2,
+        "expected_dates": 1,
+        "expected_slots_per_date": 2,
+        "total_available_spots": 33
+      },
+      "scenario_3": {
+        "name": "Test Kantipur Hospital - Cardiology",
+        "hospital_id": 16,
+        "department_id": 7,
+        "expected_dates": 4,
+        "expected_slots_per_date": 2,
+        "total_available_spots": 42
+      }
+    }
+  }
+}

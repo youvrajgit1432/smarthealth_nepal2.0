@@ -49,20 +49,9 @@ $stmt_pos->execute();
 $pos_result = $stmt_pos->get_result()->fetch_assoc();
 $queue_position = $pos_result['position'] + 1;
 
-// Calculate estimated wait time based on average service time and position
-$avg_time = 15; // Default 15 minutes
-if ($token['dept_name']) {
-    $sql_avg = "SELECT avg_service_time FROM departments WHERE id = ?";
-    $stmt_avg = $conn->prepare($sql_avg);
-    $stmt_avg->bind_param('i', $token['department_id']);
-    $stmt_avg->execute();
-    $avg_result = $stmt_avg->get_result()->fetch_assoc();
-    if ($avg_result) {
-        $avg_time = $avg_result['avg_service_time'];
-    }
-}
-
-$wait_time = ($queue_position - 1) * $avg_time;
+// Calculate estimated wait time - simplified: each person ahead = ~10 minutes
+// This gives realistic estimates (3 people = ~30 min, 1 person = ~10 min)
+$wait_time = ($queue_position - 1) * 10;
 if ($token['status'] === 'Called') {
     $wait_time = 0;
 } elseif ($token['status'] === 'Completed' || $token['status'] === 'Missed') {

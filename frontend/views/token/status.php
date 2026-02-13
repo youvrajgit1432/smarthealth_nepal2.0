@@ -6,6 +6,7 @@
 require_once __DIR__ . '/../../../backend/init.php';
 require_once __DIR__ . '/../../../backend/controllers/TokenController.php';
 require_once __DIR__ . '/../../../backend/controllers/AuthController.php';
+require_once __DIR__ . '/../../../backend/helpers/TimeHelper.php';
 
 $authController = new AuthController($db);
 if (!$authController->isLoggedIn()) {
@@ -38,7 +39,8 @@ require_once __DIR__ . '/../layouts/header.php';
         
         <div class="alert alert-warning">
             <h5><?php echo $lang['no_active_tokens'] ?? 'No active tokens'; ?></h5>
-            <p><?php echo $status['message'] ?? ''; ?></p>
+            <p><?php echo isset($status['message']) && !empty($status['message']) ? htmlspecialchars($status['message']) : 'You don\'t have any active or pending tokens at the moment.'; ?></p>
+            <p><small class="text-muted">Status message: <?php echo isset($status['message']) ? htmlspecialchars($status['message']) : 'No token found'; ?></small></p>
             <a href="/smarthealth_nepal/frontend/views/token/book.php" class="btn btn-primary">
                 <i class="fas fa-plus-circle"></i> <?php echo $lang['book_new_token'] ?? 'Book New Token'; ?>
             </a>
@@ -151,7 +153,7 @@ require_once __DIR__ . '/../layouts/header.php';
                     </div>
                     <div class="col-md-6">
                         <h6 class="text-muted"><?php echo $lang['estimated_wait'] ?? 'Estimated Wait'; ?></h6>
-                        <p class="h4"><?php echo $token['estimated_wait_time']; ?> <?php echo $lang['minutes'] ?? 'min'; ?></p>
+                        <p class="h4" id="waitTimeDisplay"><?php echo TimeHelper::formatWaitTime($token['estimated_wait_time']); ?></p>
                     </div>
                 </div>
                 
@@ -209,5 +211,152 @@ require_once __DIR__ . '/../layouts/header.php';
         <?php endif; ?>
     </div>
 </div>
+
+<script>
+// Live status update - refresh every 15 seconds
+let liveUpdateInterval; 
+const REFRESH_INTERVAL = 15000; // 15 seconds
+
+/**
+ * Format minutes to human-readable time (Xhr Ymin)
+ */
+function formatWaitTime(minutes) {
+    if (minutes === null || minutes === undefined || minutes < 0) {
+        return 'N/A';
+    }
+    
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    
+    if (hours > 0) {
+        return hours + 'h ' + mins + 'min';
+    } else {
+        return mins + 'min';
+    }
+}
+
+/**
+ * Fetch latest token status from server
+ */
+function updateTokenStatus() {
+    const tokenData = {
+        userId: <?php echo $userId; ?>,
+        departmentId: <?php echo $token['department_id']; ?>
+    };
+    
+    // Fetch updated data via AJAX
+    fetch('/smarthealth_nepal/backend/api/get_token_status.php?token=<?php echo $token['token_number']; ?>', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success && data.token) {
+            const token = data.token;
+            
+            // Update position ahead
+            const positionEl = document.querySelector('.h4');
+            if (positionEl && data.queue_position !== undefined) {
+                const newPosition = Math.max(0, data.queue_position - 1);
+                if (positionEl.textContent !== newPosition.toString()) {
+                    positionEl.textContent = newPosition;
+                    // Add animation effect
+                    positionEl.classList.add('pulse-update');
+                    setTimeout(() => positionEl.classList.remove('pulse-update'), 500);
+                }
+            }
+            
+            // Update wait time
+            const waitEl = document.getElementById('waitTimeDisplay');
+            if (waitEl && token.estimated_wait_time !== undefined) {
+                const formattedTime = formatWaitTime(token.estimated_wait_time);
+                if (waitEl.textContent !== formattedTime) {
+                    waitEl.textContent = formattedTime;
+                    // Add animation effect
+                    waitEl.classList.add('pulse-update');
+                    setTimeout(() => waitEl.classList.remove('pulse-update'), 500);
+                }
+            }
+            
+            // Update status badge
+            const statusBadge = document.querySelector('.badge');
+            if (statusBadge && token.status) {
+                const newBg = token.status === 'Called' ? 'bg-danger' : 'bg-success';
+                statusBadge.className = 'badge ' + newBg + ' p-2';
+                if (token.status === 'Called') {
+                    statusBadge.textContent = 'Called - Please Proceed';
+                } else if (token.status === 'Completed') {
+                    statusBadge.textContent = 'Completed';
+                } else {
+                    statusBadge.textContent = 'Active - In Queue';
+                }
+            }
+            
+            // If status is "Called", show alert
+            if (token.status === 'Called') {
+                showCalledAlert();
+            }
+            
+            // If status is "Completed" or "Missed", stop updates
+            if (token.status === 'Completed' || token.status === 'Missed') {
+                clearInterval(liveUpdateInterval);
+            }
+        }
+    })
+    .catch(error => {
+        console.log('Status update check (refresh in ' + (REFRESH_INTERVAL/1000) + 's):', error);
+        // Continue polling even on error
+    });
+}
+
+/**
+ * Show alert when status changes to "Called"
+ */
+function showCalledAlert() {
+    const alertDiv = document.querySelector('.alert');
+    if (alertDiv && alertDiv.classList.contains('alert-info')) {
+        alertDiv.classList.remove('alert-info');
+        alertDiv.classList.add('alert-danger');
+        alertDiv.innerHTML = '<h6>🔔 ' + (document.documentElement.lang === 'ne' ? 'आपको नम्बर कल भएको छ' : 'YOUR NUMBER HAS BEEN CALLED') + '</h6>' +
+                           '<p>' + (document.documentElement.lang === 'ne' ? 'कृपया तुरुन्त काउन्टरमा जानुहोस्' : 'Please proceed to the counter immediately') + '</p>';
+    }
+}
+
+/**
+ * Add pulse animation style
+ */
+const style = document.createElement('style');
+style.textContent = `
+    .pulse-update {
+        animation: pulse 0.5s ease-in-out;
+    }
+    
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.6; color: #0d6efd; font-weight: bold; }
+    }
+`;
+document.head.appendChild(style);
+
+// Start live updates when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Starting live status updates (every ' + (REFRESH_INTERVAL/1000) + ' seconds)');
+    
+    // Initial update after 5 seconds
+    setTimeout(updateTokenStatus, 5000);
+    
+    // Set up interval for continuous updates
+    liveUpdateInterval = setInterval(updateTokenStatus, REFRESH_INTERVAL);
+});
+
+// Clean up on page unload
+window.addEventListener('beforeunload', function() {
+    if (liveUpdateInterval) {
+        clearInterval(liveUpdateInterval);
+    }
+});
+</script>
 
 <?php require_once __DIR__ . '/../layouts/footer.php';?>

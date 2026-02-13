@@ -31,16 +31,21 @@ if (!$dept_id) {
     exit;
 }
 
-// Verify department exists
-$sql_check = "SELECT id, name FROM departments WHERE id = ?";
+// Check if admin is superadmin
+$is_superadmin = $_SESSION['admin_role'] === 'superadmin';
+$admin_hospital_id = $_SESSION['hospital_id'] ?? null;
+
+// Verify department exists and belongs to admin's hospital
+$hospital_check = $is_superadmin ? '' : " AND hospital_id = " . (int)$admin_hospital_id;
+$sql_check = "SELECT id, name, hospital_id FROM departments WHERE id = ?" . $hospital_check;
 $stmt_check = $conn->prepare($sql_check);
 $stmt_check->bind_param('i', $dept_id);
 $stmt_check->execute();
 $result = $stmt_check->get_result();
 
 if ($result->num_rows === 0) {
-    http_response_code(404);
-    echo json_encode(['success' => false, 'message' => 'Department not found']);
+    http_response_code(403);
+    echo json_encode(['success' => false, 'message' => 'Department not found or access denied']);
     exit;
 }
 

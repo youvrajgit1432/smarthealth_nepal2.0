@@ -217,7 +217,7 @@ class TokenController {
      * 2. Received and verified OTP
      * 3. SMS was successfully sent
      */
-    public function completeBookingAfterOTPVerification($phoneNumber, $departmentId, $triageData, $otpSessionId, $hospitalId = null, $locationData = null) {
+    public function completeBookingAfterOTPVerification($phoneNumber, $departmentId, $triageData, $otpSessionId, $hospitalId = null, $locationData = null, $appointmentData = null) {
         global $lang;
         
         try {
@@ -335,7 +335,7 @@ class TokenController {
             ");
             
             // Update token with hospital_id and location info if provided
-            if ($hospitalId || $locationData) {
+            if ($hospitalId || $locationData || $appointmentData) {
                 $tokenId = $token['id'] ?? null;
                 if ($tokenId) {
                     $query = "UPDATE tokens SET ";
@@ -355,9 +355,34 @@ class TokenController {
                         $updates[] = "user_ward = '$ward'";
                     }
                     
+                    // Handle appointment slot data
+                    if ($appointmentData) {
+                        if (!empty($appointmentData['appointment_slot_id'])) {
+                            $slotId = (int)$appointmentData['appointment_slot_id'];
+                            $updates[] = "appointment_slot_id = $slotId";
+                        }
+                        
+                        if (!empty($appointmentData['appointment_date'])) {
+                            $appointmentDate = $this->db->real_escape_string($appointmentData['appointment_date']);
+                            $updates[] = "appointment_date = '$appointmentDate'";
+                        }
+                        
+                        if (!empty($appointmentData['booking_type'])) {
+                            $bookingType = $this->db->real_escape_string($appointmentData['booking_type']);
+                            $updates[] = "booking_type = '$bookingType'";
+                        }
+                    }
+                    
                     if (!empty($updates)) {
                         $query .= implode(", ", $updates) . " WHERE id = $tokenId";
                         $this->db->query($query);
+                        
+                        // If appointment slot is booked, increment its booked count
+                        if ($appointmentData && !empty($appointmentData['appointment_slot_id'])) {
+                            require_once __DIR__ . '/../helpers/AppointmentSlotHelper.php';
+                            $slotHelper = new AppointmentSlotHelper($this->db);
+                            $slotHelper->bookSlot($appointmentData['appointment_slot_id'], $tokenId);
+                        }
                     }
                 }
             }
@@ -544,6 +569,301 @@ class TokenController {
                 'message' => 'Error fetching tokens: ' . $e->getMessage()
             ];
         }
+    }
+
+    /**
+     * ============================================
+     * NEW SMARTHEALTH 2.0 METHODS (Date + Time Window)
+     * ============================================
+     */
+    
+    /**
+     * Get available booking dates for a department
+     * @param int $departmentId
+     * @param int $hospitalId
+     * @param int $maxDays (default 7)
+     * @return array
+     */
+    public function getAvailableDates($departmentId, $hospitalId, $maxDays = 7) {
+        require_once __DIR__ . '/../helpers/TimeWindowManager.php';
+        $windowManager = new TimeWindowManager($this->db);
+        return $windowManager->getAvailableDates($departmentId, $hospitalId, $maxDays);
+    }
+    
+    /**
+     * Get time windows for a specific date
+     * @param int $departmentId
+     * @param int $hospitalId
+     * @param string $date (YYYY-MM-DD)
+     * @return array
+     */
+    public function getTimeWindows($departmentId, $hospitalId, $date) {
+        require_once __DIR__ . '/../helpers/TimeWindowManager.php';
+        $windowManager = new TimeWindowManager($this->db);
+        
+        // Validate date first
+        $validation = $windowManager->validateBookingDate($date, $departmentId, $hospitalId);
+        if (!$validation['valid']) {
+            return [
+                'success' => false,
+                'message' => $validation['message']
+            ];
+        }
+        
+        $windows = $windowManager->getOrCreateTimeWindows($departmentId, $hospitalId, $date);
+        return [
+            'success' => true,
+            'date' => $date,
+            'windows' => $windows
+        ];
+    }
+    
+    /**
+     * ENHANCED: Create token with booking date and time window
+     * This extends the existing completeBookingAfterOTPVerification method
+     * 
+     * @param string $phoneNumber
+     * @param int $departmentId
+     * @param string $bookingDate (YYYY-MM-DD)
+     * @param int $windowId
+     * @param string $bookingType ('Emergency', 'Regular', 'Chronic')
+     * @param array $triageData
+     * @param string $otpSessionId (optional)
+     * @param int $hospitalId (optional)
+     * @param array $locationData (optional)
+     * @return array
+     */
+    public function createTokenWithWindow($phoneNumber, $departmentId, $bookingDate, $windowId, $bookingType, 
+                                         $triageData, $otpSessionId = null, $hospitalId = null, $locationData = null) {
+        global $lang;
+        
+        require_once __DIR__ . '/../helpers/TimeWindowManager.php';
+        $windowManager = new TimeWindowManager($this->db);
+        
+        try {
+            // Validate booking date
+            $dateValidation = $windowManager->validateBookingDate($bookingDate, $departmentId, $hospitalId);
+            if (!$dateValidation['valid']) {
+                return [
+                    'success' => false,
+                    'message' => $dateValidation['message']
+                ];
+            }
+            
+            // Check window availability (unless Emergency)
+            if ($bookingType !== 'Emergency') {
+                $windowCheck = $windowManager->checkWindowAvailability($windowId);
+                if (!$windowCheck['available']) {
+                    return [
+                        'success' => false,
+                        'message' => 'Selected time slot is no longer available. Please select another slot.'
+                    ];
+                }
+            }
+            
+            // Verify OTP session if provided
+            if ($otpSessionId) {
+                $otpSession = $this->otpHelper->getOTPSession($phoneNumber, $otpSessionId);
+                if (!$otpSession || $otpSession['status'] !== 'Verified') {
+                    return [
+                        'success' => false,
+                        'message' => 'OTP verification failed. Please verify OTP first.'
+                    ];
+                }
+            }
+            
+            // Get or create user
+            $user = $this->userModel->getUserByPhone($phoneNumber);
+            if (!$user) {
+                $userData = [
+                    'phone_number' => $phoneNumber,
+                    'full_name' => $triageData['full_name'] ?? '',
+                    'phone_verified' => 1
+                ];
+                
+                if ($locationData) {
+                    $userData['district'] = $locationData['district'] ?? null;
+                    $userData['municipality'] = $locationData['municipality'] ?? null;
+                    $userData['ward'] = $locationData['ward'] ?? null;
+                }
+                
+                $userId = $this->userModel->create($userData);
+                if (!$userId) {
+                    return [
+                        'success' => false,
+                        'message' => 'Failed to create user account'
+                    ];
+                }
+                $user = $this->userModel->getUserById($userId);
+            } else {
+                $userId = $user['id'];
+                $updateQuery = "UPDATE users SET phone_verified = 1";
+                if ($locationData) {
+                    $district = $this->db->real_escape_string($locationData['district'] ?? '');
+                    $municipality = $this->db->real_escape_string($locationData['municipality'] ?? '');
+                    $ward = $this->db->real_escape_string($locationData['ward'] ?? '');
+                    $updateQuery .= ", district = '$district', municipality = '$municipality', ward = '$ward'";
+                }
+                $updateQuery .= " WHERE id = $userId";
+                $this->db->query($updateQuery);
+            }
+            
+            // Classify priority based on triage
+            $priority = $this->tokenHelper->classifyTriagePriority($triageData);
+            
+            // Get window details for time slot info
+            $window = $windowManager->checkWindowAvailability($windowId)['window'];
+            
+            // Generate token number (updated format with date)
+            $date = date('Ymd', strtotime($bookingDate));
+            $hospitalId = $hospitalId ?? 1;
+            $hospitalId = (int)$hospitalId;
+            $departmentId = (int)$departmentId;
+            
+            // Find max serial number for this hospital and date
+            $serialResult = $this->db->query(
+                "SELECT COUNT(*) as serial FROM tokens 
+                 WHERE hospital_id = $hospitalId AND DATE(booking_date) = '$bookingDate'"
+            );
+            $serialRow = $serialResult->fetch_assoc();
+            $serialNumber = ($serialRow['serial'] ?? 0) + 1;
+            
+            $tokenNumber = (int)("{$hospitalId}{$date}" . str_pad($serialNumber, 3, '0', STR_PAD_LEFT));
+            
+            // Prepare triage data as JSON
+            $triageJson = json_encode($triageData);
+            $triageJson = $this->db->real_escape_string($triageJson);
+            
+            // Prepare location data
+            $userDistrict = $this->db->real_escape_string($locationData['district'] ?? '');
+            $userMunicipality = $this->db->real_escape_string($locationData['municipality'] ?? '');
+            $userWard = $this->db->real_escape_string($locationData['ward'] ?? '');
+            $bookingType = $this->db->real_escape_string($bookingType);
+            
+            // Insert token with all new fields
+            $query = "INSERT INTO tokens (
+                        user_id, department_id, hospital_id, token_number, priority, triage_reason,
+                        user_district, user_municipality, user_ward,
+                        status, estimated_wait_time, is_emergency, is_chronic_followup,
+                        booking_date, window_id, window_start_time, window_end_time, 
+                        booking_type, arrival_status,
+                        created_at
+                      ) VALUES (
+                        $userId, $departmentId, $hospitalId, $tokenNumber, '$priority', '$triageJson',
+                        '$userDistrict', '$userMunicipality', '$userWard',
+                        'Active', 0, " . ($priority === 'Emergency' ? '1' : '0') . ", 
+                        " . ($priority === 'Chronic' ? '1' : '0') . ",
+                        '$bookingDate', $windowId, '{$window['start_time']}', '{$window['end_time']}',
+                        '$bookingType', 'NotArrived',
+                        NOW()
+                      )";
+            
+            if (!$this->db->query($query)) {
+                return [
+                    'success' => false,
+                    'message' => 'Failed to create token: ' . $this->db->error
+                ];
+            }
+            
+            $tokenId = $this->db->insert_id;
+            
+            // Reserve slot in window (unless Emergency)
+            if ($bookingType !== 'Emergency') {
+                $windowManager->reserveSlot($windowId, $tokenId);
+            }
+            
+            // Get department info
+            $department = $this->deptModel->getById($departmentId);
+            
+            // Generate SMS message
+            $message = $this->tokenHelper->generateTokenMessage(
+                [
+                    'id' => $tokenId,
+                    'token_number' => $tokenNumber,
+                    'priority' => $priority,
+                    'booking_date' => $bookingDate,
+                    'window_start_time' => $window['start_time'],
+                    'window_end_time' => $window['end_time']
+                ],
+                $department,
+                $_SESSION['language'] ?? 'en'
+            );
+            
+            // Send SMS
+            if ($user['phone_number']) {
+                $this->smsHelper->send($user['phone_number'], $message);
+            }
+            
+            return [
+                'success' => true,
+                'message' => 'Token created successfully with time slot!',
+                'token_id' => $tokenId,
+                'token_number' => $tokenNumber,
+                'user_id' => $userId,
+                'booking_date' => $bookingDate,
+                'window_start_time' => $window['start_time'],
+                'window_end_time' => $window['end_time'],
+                'priority' => $priority,
+                'department' => $department
+            ];
+            
+        } catch (Exception $e) {
+            return [
+                'success' => false,
+                'message' => 'Error creating token: ' . $e->getMessage()
+            ];
+        }
+    }
+    
+    /**
+     * Handle patient arrival check-in
+     * @param int $tokenId
+     * @param string $arrivalTime (optional - defaults to NOW)
+     * @return array
+     */
+    public function handleArrivalCheckIn($tokenId, $arrivalTime = null) {
+        require_once __DIR__ . '/../helpers/TimeWindowManager.php';
+        $windowManager = new TimeWindowManager($this->db);
+        
+        $result = $windowManager->handleArrival($tokenId, $arrivalTime);
+        return $result;
+    }
+    
+    /**
+     * Get queue visibility for hospital staff
+     * @param int $departmentId
+     * @param int $hospitalId
+     * @param string $date (optional - defaults to today)
+     * @return array
+     */
+    public function getQueueByTimeWindow($departmentId, $hospitalId, $date = null) {
+        require_once __DIR__ . '/../helpers/TimeWindowManager.php';
+        $windowManager = new TimeWindowManager($this->db);
+        
+        $date = $date ?? date('Y-m-d');
+        $windows = $windowManager->getWindowsWithQueues($departmentId, $hospitalId, $date);
+        
+        return [
+            'success' => true,
+            'date' => $date,
+            'department_id' => $departmentId,
+            'hospital_id' => $hospitalId,
+            'windows_with_queues' => $windows
+        ];
+    }
+    
+    /**
+     * Reschedule token to different time window
+     * @param int $tokenId
+     * @param int $newWindowId
+     * @return array
+     */
+    public function rescheduleToTimeWindow($tokenId, $newWindowId) {
+        require_once __DIR__ . '/../helpers/TimeWindowManager.php';
+        $windowManager = new TimeWindowManager($this->db);
+        
+        $result = $windowManager->rescheduleToken($tokenId, $newWindowId);
+        return $result;
     }
 }
 

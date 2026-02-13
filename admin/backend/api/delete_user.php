@@ -31,6 +31,10 @@ if (!$user_id) {
     exit;
 }
 
+// Check if admin is superadmin
+$is_superadmin = $_SESSION['admin_role'] === 'superadmin';
+$admin_hospital_id = $_SESSION['hospital_id'] ?? null;
+
 // Verify user exists
 $sql_check = "SELECT id, phone, name FROM users WHERE id = ?";
 $stmt_check = $conn->prepare($sql_check);
@@ -45,6 +49,23 @@ if ($result->num_rows === 0) {
 }
 
 $user = $result->fetch_assoc();
+
+// If not superadmin, verify user belongs to their hospital
+if (!$is_superadmin && $admin_hospital_id) {
+    $sql_verify = "SELECT COUNT(*) as count FROM tokens t 
+                   JOIN departments d ON t.department_id = d.id 
+                   WHERE t.user_id = ? AND d.hospital_id = ?";
+    $stmt_verify = $conn->prepare($sql_verify);
+    $stmt_verify->bind_param('ii', $user_id, $admin_hospital_id);
+    $stmt_verify->execute();
+    $verify_result = $stmt_verify->get_result()->fetch_assoc();
+    
+    if ($verify_result['count'] === 0) {
+        http_response_code(403);
+        echo json_encode(['success' => false, 'message' => 'User not found or access denied']);
+        exit;
+    }
+}
 
 // Start transaction
 $conn->begin_transaction();

@@ -31,12 +31,29 @@ if (!$service_id) {
     exit;
 }
 
-// Verify service exists
-$sql_check = "SELECT id, service_name FROM services WHERE id = ?";
+// Check if admin is superadmin
+$is_superadmin = $_SESSION['admin_role'] === 'superadmin';
+$admin_hospital_id = $_SESSION['hospital_id'] ?? null;
+
+// Verify service exists and belongs to admin's hospital
+$sql_check = "SELECT s.id, s.service_name FROM services s 
+              LEFT JOIN departments d ON s.department_id = d.id
+              WHERE s.id = ?";
+
+if (!$is_superadmin && $admin_hospital_id) {
+    $sql_check .= " AND d.hospital_id = " . (int)$admin_hospital_id;
+}
+
 $stmt_check = $conn->prepare($sql_check);
 $stmt_check->bind_param('i', $service_id);
 $stmt_check->execute();
 $result = $stmt_check->get_result();
+
+if ($result->num_rows === 0) {
+    http_response_code(403);
+    echo json_encode(['success' => false, 'message' => 'Service not found or access denied']);
+    exit;
+}
 
 if ($result->num_rows === 0) {
     http_response_code(404);

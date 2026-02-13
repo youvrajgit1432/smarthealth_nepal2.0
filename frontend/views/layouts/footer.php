@@ -241,7 +241,7 @@
                 <div class="col-md-4">
                     <h5><?php echo isset($lang['contact_us']) ? $lang['contact_us'] : 'Contact Us'; ?></h5>
                     <p>
-                        <i class="fas fa-phone"></i> +977-1-XXXXXXX<br>
+                        <i class="fas fa-phone"></i> +977-9854634578<br>
                         <i class="fas fa-envelope"></i> info@smarthealth.npl<br>
                         <i class="fas fa-map-marker-alt"></i> Kathmandu, Nepal
                     </p>
@@ -262,6 +262,8 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Custom JS -->
     <script src="/smarthealth_nepal/frontend/public/assets/js/main.js"></script>
+    <!-- SmartHealth 2.0 JS -->
+    <script src="/smarthealth_nepal/frontend/public/assets/js/smarthealth-2.0.js"></script>
     
     <script>
         // Language switcher

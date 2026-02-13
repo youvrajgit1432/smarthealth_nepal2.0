@@ -4,7 +4,7 @@
  */
 
 // Admin default language
-define('ADMIN_DEFAULT_LANGUAGE', 'en');
+define('DEFAULT_LANGUAGE', 'en');
 
 // Admin supported languages
 define('ADMIN_SUPPORTED_LANGUAGES', [

@@ -44,17 +44,18 @@ class TokenModel {
         // Example: 12 + 20260212 + 003 = 1220260212003
         $tokenNumber = (int)("{$hospitalId}{$date}" . str_pad($serialNumber, 3, '0', STR_PAD_LEFT));
         
-        // Calculate estimated wait time
+        // Calculate estimated wait time - simplified: queue position * 10 minutes
+        // This ensures realistic wait time based on actual queue (3 people ahead = ~30 min)
         $waitTimeResult = $this->db->query(
-            "SELECT COUNT(*) as queue_count, d.avg_service_time
+            "SELECT COUNT(*) as queue_count
              FROM tokens t
-             JOIN departments d ON t.department_id = d.id
              WHERE t.department_id = $departmentId 
              AND t.status = 'Active'
              AND DATE(t.created_at) = CURDATE()"
         );
         $waitData = $waitTimeResult->fetch_assoc();
-        $estimatedWait = ($waitData['queue_count'] ?? 0) * ($waitData['avg_service_time'] ?? 30);
+        // Each person ahead takes ~10 minutes (realistic estimate)
+        $estimatedWait = ($waitData['queue_count'] ?? 0) * 10;
         
         // Extract location data if provided
         $userDistrict = null;
@@ -164,22 +165,40 @@ class TokenModel {
     }
     
     /**
-     * Get user's active tokens
+     * Get user's active tokens - looks for tokens from today, or most recent valid token
      */
     public function getUserActiveTokens($userId) {
         $userId = (int)$userId;
         
+        // First try: Look for today's active/called tokens
         $query = "SELECT t.*, d.name_en as department_name, d.name_ne as department_name_ne
                   FROM tokens t
                   JOIN departments d ON t.department_id = d.id
                   WHERE t.user_id = $userId 
-                  AND t.status IN ('Active', 'Called')
+                  AND t.status IN ('Active', 'Called', 'Pending')
                   AND DATE(t.created_at) = CURDATE()
                   ORDER BY t.created_at DESC
                   LIMIT 1";
         
         $result = $this->db->query($query);
-        return $result->fetch_assoc();
+        
+        // If found today's token, return it
+        if ($result && $result->num_rows > 0) {
+            return $result->fetch_assoc();
+        }
+        
+        // Fallback: Look for any recent valid token (last 7 days) that hasn't been completed/missed/cancelled
+        $query = "SELECT t.*, d.name_en as department_name, d.name_ne as department_name_ne
+                  FROM tokens t
+                  JOIN departments d ON t.department_id = d.id
+                  WHERE t.user_id = $userId 
+                  AND t.status NOT IN ('Completed', 'Missed', 'Cancelled', 'Rescheduled')
+                  AND t.created_at >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
+                  ORDER BY t.created_at DESC
+                  LIMIT 1";
+        
+        $result = $this->db->query($query);
+        return $result ? $result->fetch_assoc() : null;
     }
     
     /**
@@ -231,27 +250,39 @@ class TokenModel {
     }
     
     /**
-     * Get queue position for user
+     * Get queue position for user - handles tokens from today or recent days
      */
     public function getQueuePosition($userId, $departmentId) {
         $userId = (int)$userId;
         $departmentId = (int)$departmentId;
         
-        // Get user's token
+        // First try: Get today's token
         $userToken = $this->db->query(
             "SELECT id, priority, created_at FROM tokens 
              WHERE user_id = $userId AND department_id = $departmentId 
-             AND status = 'Active' AND DATE(created_at) = CURDATE() LIMIT 1"
+             AND status IN ('Active', 'Called', 'Pending') 
+             AND DATE(created_at) = CURDATE() LIMIT 1"
         )->fetch_assoc();
         
-        if (!$userToken) return null;
+        // Fallback: Get any recent valid token (last 7 days)
+        if (!$userToken) {
+            $userToken = $this->db->query(
+                "SELECT id, priority, created_at FROM tokens 
+                 WHERE user_id = $userId AND department_id = $departmentId 
+                 AND status NOT IN ('Completed', 'Missed', 'Cancelled', 'Rescheduled')
+                 AND created_at >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
+                 ORDER BY created_at DESC LIMIT 1"
+            )->fetch_assoc();
+        }
         
-        // Count people ahead of user
+        if (!$userToken) return 0; // Return 0 if no token found
+        
+        // Count people ahead of user (any valid status tokens in same department)
         $result = $this->db->query(
             "SELECT COUNT(*) as ahead FROM tokens t
              WHERE t.department_id = $departmentId 
-             AND t.status = 'Active'
-             AND DATE(t.created_at) = CURDATE()
+             AND t.status NOT IN ('Completed', 'Missed', 'Cancelled', 'Rescheduled')
+             AND (t.created_at >= DATE_SUB(CURDATE(), INTERVAL 1 DAY))
              AND (
                CASE 
                  WHEN t.priority = 'Emergency' THEN 1
@@ -283,23 +314,24 @@ class TokenModel {
     }
     
     /**
-     * Get department load indicator
+     * Get department load indicator - counts valid tokens from recent days
      */
     public function getDepartmentLoad($departmentId) {
         $departmentId = (int)$departmentId;
         
+        // Count active/valid tokens from today or recent days
         $result = $this->db->query(
             "SELECT COUNT(*) as active_count, d.max_capacity
              FROM tokens t
              JOIN departments d ON t.department_id = d.id
              WHERE t.department_id = $departmentId 
-             AND t.status = 'Active'
-             AND DATE(t.created_at) = CURDATE()
+             AND t.status NOT IN ('Completed', 'Missed', 'Cancelled', 'Rescheduled')
+             AND (t.created_at >= DATE_SUB(CURDATE(), INTERVAL 1 DAY))
              GROUP BY d.id"
         );
         
         $row = $result->fetch_assoc();
-        if (!$row) return ['load' => 'Low', 'percentage' => 0];
+        if (!$row) return ['load' => 'Low', 'percentage' => 0, 'active_count' => 0, 'max_capacity' => 0];
         
         $percentage = ($row['active_count'] / $row['max_capacity']) * 100;
         

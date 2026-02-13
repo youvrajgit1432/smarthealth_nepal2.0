@@ -20,6 +20,10 @@ $phoneNumber = $input['phone_number'] ?? $_POST['phone_number'] ?? '';
 $departmentId = $input['department_id'] ?? $_POST['department_id'] ?? null;
 $otpSessionId = $input['otp_session_id'] ?? $_POST['otp_session_id'] ?? null;
 $triageData = $input['triage_data'] ?? $_POST['triage_data'] ?? [];
+$bookingDate = $input['booking_date'] ?? $_POST['booking_date'] ?? null;
+$windowId = $input['window_id'] ?? $_POST['window_id'] ?? null;
+$hospitalId = $input['hospital_id'] ?? $_POST['hospital_id'] ?? null;
+$locationData = $input['location_data'] ?? $_POST['location_data'] ?? null;
 
 if (empty($phoneNumber) || empty($departmentId) || empty($otpSessionId)) {
     http_response_code(400);
@@ -31,12 +35,16 @@ try {
     // Initialize controller
     $tokenController = new TokenController($db);
     
-    // Complete booking
+    // Complete booking with time window support
     $result = $tokenController->completeBookingAfterOTPVerification(
         $phoneNumber,
         $departmentId,
         $triageData,
-        $otpSessionId
+        $otpSessionId,
+        $hospitalId,
+        $locationData,
+        $bookingDate,
+        $windowId
     );
     
     header('Content-Type: application/json');

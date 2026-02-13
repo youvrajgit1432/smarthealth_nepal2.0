@@ -32,8 +32,18 @@ if (!$referral_id) {
     exit;
 }
 
+// Check if admin is superadmin
+$is_superadmin = $_SESSION['admin_role'] === 'superadmin';
+$admin_hospital_id = $_SESSION['hospital_id'] ?? null;
+
+// Build hospital filter
+$hospital_filter = '';
+if (!$is_superadmin && $admin_hospital_id) {
+    $hospital_filter = " AND r.to_hospital_id = " . (int)$admin_hospital_id;
+}
+
 // Get referral details
-$sql = "SELECT r.* FROM referrals r WHERE r.id = ?";
+$sql = "SELECT r.* FROM referrals r WHERE r.id = ?" . $hospital_filter;
 $stmt = $conn->prepare($sql);
 $stmt->bind_param('i', $referral_id);
 $stmt->execute();

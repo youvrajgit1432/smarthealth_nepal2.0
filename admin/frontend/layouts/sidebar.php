@@ -37,6 +37,11 @@
             </a>
         </li>
         <li style="border-top: 2px solid #34495e; margin-top: 20px;">
+            <a href="/smarthealth_nepal/admin/frontend/views/auth/profile.php" class="<?php echo ($activePage === 'profile') ? 'active' : ''; ?>">
+                <i class="fas fa-user-circle"></i> <?php echo $lang['profile'] ?? 'My Profile'; ?>
+            </a>
+        </li>
+        <li>
             <a href="javascript:void(0);" onclick="if(confirm('Are you sure you want to logout?')) { window.location.href='/smarthealth_nepal/admin/frontend/views/auth/logout.php'; }">
                 <i class="fas fa-sign-out-alt"></i> <?php echo $lang['logout'] ?? 'Logout'; ?>
             </a>

@@ -9,15 +9,14 @@ require_once __DIR__ . '/../../../backend/controllers/DashboardController.php';
 require_once __DIR__ . '/../../../backend/models/TokenModel.php';
 
 // Check admin login
-if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
-    header('Location: /smarthealth_nepal/admin/public/index.php?page=login');
+if (!isset($_SESSION['admin_id'])) {
+    header('Location: /smarthealth_nepal/admin/frontend/views/auth/login.php');
     exit;
 }
 
-// Load admin language
-$lang_file = __DIR__ . '/../../../backend/lang/' . ($_SESSION['language'] ?? 'en') . '.php';
-if (file_exists($lang_file)) {
-    require_once $lang_file;
+// Ensure language is loaded
+if (!isset($lang)) {
+    $lang = [];
 }
 
 $token_id = $_GET['token_id'] ?? null;

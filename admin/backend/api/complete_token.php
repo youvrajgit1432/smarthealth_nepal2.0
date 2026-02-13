@@ -31,10 +31,21 @@ if (!$token_id) {
     exit;
 }
 
-// Get token details
-$sql = "SELECT t.id, t.token_number, t.status, t.department_id 
+// Check if admin is superadmin
+$is_superadmin = $_SESSION['admin_role'] === 'superadmin';
+$admin_hospital_id = $_SESSION['hospital_id'] ?? null;
+
+// Build hospital filter based on role
+$hospital_filter = '';
+if (!$is_superadmin && $admin_hospital_id) {
+    $hospital_filter = " AND d.hospital_id = " . (int)$admin_hospital_id;
+}
+
+// Get token details with hospital validation
+$sql = "SELECT t.id, t.token_number, t.status, t.department_id, d.hospital_id
         FROM tokens t
-        WHERE t.id = ? AND DATE(t.created_at) = CURDATE()";
+        LEFT JOIN departments d ON t.department_id = d.id
+        WHERE t.id = ? AND DATE(t.created_at) = CURDATE()" . $hospital_filter;
 
 $stmt = $conn->prepare($sql);
 $stmt->bind_param('i', $token_id);
@@ -43,7 +54,7 @@ $result = $stmt->get_result();
 
 if ($result->num_rows === 0) {
     http_response_code(404);
-    echo json_encode(['success' => false, 'message' => 'Token not found']);
+    echo json_encode(['success' => false, 'message' => 'Token not found or access denied']);
     exit;
 }
 

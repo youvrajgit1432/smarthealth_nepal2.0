@@ -27,6 +27,7 @@ if (!isset($_SESSION['language'])) {
     <!-- Custom CSS -->
     <link rel="stylesheet" href="/smarthealth_nepal/frontend/public/assets/css/main.css">
     <link rel="stylesheet" href="/smarthealth_nepal/frontend/public/assets/css/responsive.css">
+    <link rel="stylesheet" href="/smarthealth_nepal/frontend/public/assets/css/smarthealth-2.0.css">
     
     <style>
         :root {
@@ -38,6 +39,14 @@ if (!isset($_SESSION['language'])) {
             --info-color: #17a2b8;
             --light-color: #f8f9fa;
             --dark-color: #343a40;
+            /* SmartHealth 2.0 Colors */
+            --window-color-morning: #4CAF50;
+            --window-color-afternoon: #2196F3;
+            --window-color-evening: #FF9800;
+            --emergency-color: #F44336;
+            --priority-color: #FF5722;
+            --normal-color: #2196F3;
+            --chronic-color: #9C27B0;
         }
         
         * {
@@ -241,25 +250,91 @@ if (!isset($_SESSION['language'])) {
         /* Dropdown menu styling */
         .dropdown-menu {
             border: 1px solid rgba(0, 0, 0, 0.1);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            border-radius: 0.5rem;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            border-radius: 8px;
+            min-width: 240px;
+            animation: dropdownSlideIn 0.3s ease-out;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+        }
+        
+        .dropdown-menu.show {
+            background: rgba(255, 255, 255, 0.98);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+        }
+        
+        .dropdown-menu.show::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: -1;
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        
+        .dropdown-header {
+            color: #0056b3;
+            font-weight: 700;
+            font-size: 0.95rem;
+            padding: 0.75rem 1rem;
+            background: linear-gradient(135deg, #f0f7ff 0%, #e8f1ff 100%);
+            border-radius: 8px 8px 0 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .dropdown-divider {
+            margin: 0.5rem 0;
+            border-top: 1px solid #e9ecef;
         }
         
         .dropdown-item {
-            transition: all 0.2s ease;
+            transition: all 0.25s ease;
+            color: #2d3748;
+            font-weight: 500;
+            font-size: 0.95rem;
+            padding: 0.75rem 1rem;
+            border-left: 3px solid transparent;
         }
         
         .dropdown-item:hover {
-            background-color: #030609;
-            border-left: 3px solid var(--primary-color);
+            border-left-color: #0056b3;
             padding-left: calc(1rem - 3px);
+            transform: translateX(4px);
+            color: #0056b3;
+        }
+        
+        .dropdown-item:active {
+            background-color: #d4e4ff;
+            color: #003d99;
         }
         
         .dropdown-item i {
-            width: 20px;
-            margin-right: 0.75rem;
+            width: 24px;
+            margin-right: 12px;
             text-align: center;
-            color: var(--primary-color);
+            font-size: 1.1rem;
+            transition: all 0.25s ease;
+        }
+        
+        .dropdown-item:hover i {
+            transform: scale(1.2) rotate(5deg);
+            color: #0056b3;
+        }
+        
+        .dropdown-item:last-child:hover i {
+            color: #dc3545;
         }
     
     </style>
@@ -362,28 +437,28 @@ if (!isset($_SESSION['language'])) {
                             <li><hr class="dropdown-divider"></li>
                             <li>
                                 <a class="dropdown-item" href="/smarthealth_nepal/frontend/views/profile/index.php">
-                                    <i class="fas fa-user-circle"></i> <?php echo isset($lang['profile']) ? $lang['profile'] : 'My Profile'; ?>
+                                    <i class="fas fa-id-card"></i> <?php echo isset($lang['profile']) ? $lang['profile'] : 'My Profile'; ?>
                                 </a>
                             </li>
                             <li>
                                 <a class="dropdown-item" href="/smarthealth_nepal/frontend/views/profile/health_history.php">
-                                    <i class="fas fa-history"></i> <?php echo isset($lang['health_history']) ? $lang['health_history'] : 'Health History'; ?>
+                                    <i class="fas fa-heart-pulse"></i> <?php echo isset($lang['health_history']) ? $lang['health_history'] : 'Health History'; ?>
                                 </a>
                             </li>
                             <li>
                                 <a class="dropdown-item" href="/smarthealth_nepal/frontend/views/profile/bookings.php">
-                                    <i class="fas fa-clipboard-list"></i> <?php echo isset($lang['my_bookings']) ? $lang['my_bookings'] : 'My Bookings'; ?>
+                                    <i class="fas fa-calendar-check"></i> <?php echo isset($lang['my_bookings']) ? $lang['my_bookings'] : 'My Bookings'; ?>
                                 </a>
                             </li>
                             <li>
                                 <a class="dropdown-item" href="/smarthealth_nepal/frontend/views/profile/diseases.php">
-                                    <i class="fas fa-notes-medical"></i> <?php echo isset($lang['my_conditions']) ? $lang['my_conditions'] : 'My Conditions'; ?>
+                                    <i class="fas fa-stethoscope"></i> <?php echo isset($lang['my_conditions']) ? $lang['my_conditions'] : 'My Conditions'; ?>
                                 </a>
                             </li>
                             <li><hr class="dropdown-divider"></li>
                             <li>
                                 <a class="dropdown-item" href="/smarthealth_nepal/frontend/views/auth/login.php?action=logout">
-                                    <i class="fas fa-sign-out-alt"></i> <?php echo isset($lang['logout']) ? $lang['logout'] : 'Logout'; ?>
+                                    <i class="fas fa-power-off"></i> <?php echo isset($lang['logout']) ? $lang['logout'] : 'Logout'; ?>
                                 </a>
                             </li>
                         </ul>
@@ -400,5 +475,70 @@ if (!isset($_SESSION['language'])) {
             </div>
         </div>
     </nav>
+    
+    <script>
+        // Add dark overlay effect when dropdown is opened
+        document.addEventListener('DOMContentLoaded', function() {
+            const dropdownToggle = document.getElementById('userProfileDropdown');
+            const dropdownMenu = document.querySelector('.dropdown-menu');
+            
+            if (dropdownToggle) {
+                dropdownToggle.addEventListener('show.bs.dropdown', function() {
+                    // Add body overflow hidden to prevent scrolling
+                    document.body.style.overflow = 'hidden';
+                });
+                
+                dropdownToggle.addEventListener('hide.bs.dropdown', function() {
+                    // Remove body overflow
+                    document.body.style.overflow = '';
+                });
+            }
+            
+            // Close dropdown when clicking on a menu item
+            const dropdownItems = document.querySelectorAll('.dropdown-item');
+            dropdownItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const backdrop = document.querySelector('.dropdown-menu.show::before');
+                    if (dropdownToggle) {
+                        new bootstrap.Dropdown(dropdownToggle).hide();
+                    }
+                });
+            });
+        });
+    </script>
+    
+    <!-- SmartHealth 2.0: Time Window & Queue Status Banner -->
+    <?php 
+    if (isset($_SESSION['booking_window_id']) || isset($_SESSION['booking_date'])) {
+        $booking_date = $_SESSION['booking_date'] ?? date('Y-m-d');
+        $window_time = '';
+        
+        // Determine which window based on time
+        if (!empty($_SESSION['booking_window_id'])) {
+            $window_map = [1 => '09:00-12:00', 2 => '13:00-16:00', 3 => '16:00-17:00'];
+            $window_time = $window_map[$_SESSION['booking_window_id']] ?? '';
+        }
+        
+        if ($booking_date || $window_time) {
+            ?>
+            <div class="alert alert-info alert-dismissible fade show sh2-status-banner" role="alert">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <i class="fas fa-calendar-check me-2"></i>
+                        <strong>Booking Status:</strong>
+                        <?php if ($booking_date): ?>
+                            <span class="badge bg-primary">Date: <?php echo date('M d, Y', strtotime($booking_date)); ?></span>
+                        <?php endif; ?>
+                        <?php if ($window_time): ?>
+                            <span class="badge bg-success">Window: <?php echo $window_time; ?></span>
+                        <?php endif; ?>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            </div>
+            <?php
+        }
+    }
+    ?>
     
     <main class="container my-5">

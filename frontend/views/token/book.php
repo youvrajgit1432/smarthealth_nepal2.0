@@ -20,6 +20,7 @@ require_once __DIR__ . '/../../../backend/controllers/TokenController.php';
 require_once __DIR__ . '/../../../backend/controllers/AuthController.php';
 require_once __DIR__ . '/../../../backend/helpers/OTPHelper.php';
 require_once __DIR__ . '/../../../backend/helpers/HospitalHelper.php';
+require_once __DIR__ . '/../../../backend/helpers/AppointmentSlotHelper.php';
 require_once __DIR__ . '/../../../backend/services/SparrowSMSService.php';
 
 // Initialize variables
@@ -44,12 +45,18 @@ $userPhone = $user['phone_number'] ?? null;
 $defaultStep = $isLoggedIn ? 'booking_details' : 'phone_entry';
 $currentStep = isset($_POST['step']) ? $_POST['step'] : $defaultStep;
 
-// Response messages
+// Response messages - clear when logged in user first loads form
 $response = [
     'success' => null,
     'message' => '',
     'type' => ''
 ];
+
+// Clear any stale OTP session errors for logged-in users
+if ($isLoggedIn && $currentStep === 'booking_details' && $_SERVER['REQUEST_METHOD'] !== 'POST') {
+    // First-time load for logged-in user - no errors
+    $response['success'] = null;
+}
 
 // ============================================
 // STEP 1: PHONE NUMBER ENTRY (Only for non-logged-in users)
@@ -212,6 +219,13 @@ else if ($_SERVER['REQUEST_METHOD'] === 'POST' && $currentStep === 'booking_deta
             'additional_notes' => $_POST['additional_notes'] ?? ''
         ];
         
+        // Store appointment scheduling data
+        $_SESSION['booking_appointment'] = [
+            'appointment_date' => $_POST['appointment_date'] ?? null,
+            'appointment_slot_id' => $_POST['appointment_slot_id'] ?? null,
+            'booking_type' => $_POST['booking_type'] ?? 'Regular'
+        ];
+        
         // Store location data
         $_SESSION['booking_location'] = [
             'district' => $_POST['district'] ?? null,
@@ -223,15 +237,52 @@ else if ($_SERVER['REQUEST_METHOD'] === 'POST' && $currentStep === 'booking_deta
         $_SESSION['booking_hospital_id'] = $hospitalId;
         $_SESSION['booking_phone'] = $phoneNumber;
         
-        // IMMEDIATELY COMPLETE THE BOOKING
-        $bookingResult = $tokenController->completeBookingAfterOTPVerification(
-            $phoneNumber,
-            $departmentId,
-            $_SESSION['booking_data'],
-            $_SESSION['otp_session_id'] ?? null,
-            $hospitalId,
-            $_SESSION['booking_location']
-        );
+        // CHOOSE BOOKING METHOD BASED ON USER STATUS
+        // For logged-in users: use bookToken() directly (no OTP needed)
+        // For new users: use completeBookingAfterOTPVerification() (OTP already verified)
+        if ($isLoggedIn && $userId) {
+            // User is already logged in - booking for themselves
+            // Use the direct bookToken method
+            $bookingResult = $tokenController->bookToken(
+                $userId,
+                $departmentId,
+                $_SESSION['booking_data'],
+                $hospitalId,
+                $_SESSION['booking_location']
+            );
+            
+            // Add appointment slot booking if appointment was selected
+            if ($bookingResult['success'] && !empty($_SESSION['booking_appointment']['appointment_slot_id'])) {
+                $appointmentSlotId = $_SESSION['booking_appointment']['appointment_slot_id'];
+                $tokenId = $bookingResult['token']['id'] ?? null;
+                
+                if ($tokenId && $appointmentSlotId) {
+                    $appointmentHelper = new AppointmentSlotHelper($db);
+                    $slotResult = $appointmentHelper->bookSlot($appointmentSlotId, $tokenId);
+                    
+                    if ($slotResult['success']) {
+                        // Update token with appointment details
+                        $db->query("UPDATE tokens SET 
+                            appointment_date = '{$_SESSION['booking_appointment']['appointment_date']}',
+                            appointment_slot_id = $appointmentSlotId,
+                            booking_type = '{$_SESSION['booking_appointment']['booking_type']}'
+                            WHERE id = $tokenId"
+                        );
+                    }
+                }
+            }
+        } else {
+            // User is not logged in - must have completed OTP verification
+            $bookingResult = $tokenController->completeBookingAfterOTPVerification(
+                $phoneNumber,
+                $departmentId,
+                $_SESSION['booking_data'],
+                $_SESSION['otp_session_id'] ?? null,
+                $hospitalId,
+                $_SESSION['booking_location'],
+                $_SESSION['booking_appointment'] ?? null
+            );
+        }
         
         if ($bookingResult['success']) {
             // SUCCESS - Token generated!
@@ -252,6 +303,7 @@ else if ($_SERVER['REQUEST_METHOD'] === 'POST' && $currentStep === 'booking_deta
             unset($_SESSION['booking_department_id']);
             unset($_SESSION['booking_hospital_id']);
             unset($_SESSION['booking_location']);
+            unset($_SESSION['booking_appointment']);
             unset($_SESSION['new_user']);
             
             header('Location: /smarthealth_nepal/frontend/views/token/confirmation.php');
@@ -563,6 +615,71 @@ require_once __DIR__ . '/../layouts/header.php';
                         <div class="mb-3">
                             <label for="notes" class="form-label"><?php echo $lang['additional_notes'] ?? 'Additional information:'; ?></label>
                             <textarea class="form-control" name="additional_notes" id="notes" rows="3"></textarea>
+                        </div>
+                    </fieldset>
+                    
+                    <hr>
+                    
+                    <!-- Appointment Scheduling -->
+                    <fieldset class="mb-4">
+                        <legend class="mb-3">
+                            <h6 class="badge bg-info"><i class="fas fa-calendar-alt"></i> <?php echo $lang['appointment_scheduling'] ?? 'Appointment Scheduling'; ?></h6>
+                        </legend>
+                        
+                        <p class="text-muted"><?php echo $lang['select_preferred_date'] ?? 'Select your preferred appointment date and time:'; ?></p>
+                        
+                        <!-- Appointment Date Selection -->
+                        <div class="mb-3">
+                            <label for="appointmentDate" class="form-label">
+                                <strong><?php echo $lang['appointment_date'] ?? 'Preferred Date'; ?></strong>
+                            </label>
+                            <select class="form-control form-control-lg" id="appointmentDate" name="appointment_date" onchange="loadTimeSlots()">
+                                <option value="">Loading available dates...</option>
+                            </select>
+                            <small class="form-text text-muted">
+                                <?php echo $lang['date_info'] ?? 'Only dates with available slots are shown'; ?>
+                            </small>
+                        </div>
+                        
+                        <!-- Time Window Selection -->
+                        <div class="mb-3">
+                            <label for="appointmentSlot" class="form-label">
+                                <strong><?php echo $lang['time_window'] ?? 'Preferred Time Window'; ?></strong>
+                            </label>
+                            <div id="timeSlotsContainer" class="row" style="display: none;">
+                                <div id="timeSlotOptions">
+                                    <select class="form-control form-control-lg" id="appointmentSlot" name="appointment_slot_id">
+                                        <option value="">Select a time window...</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div id="noSlotsAvailable" class="alert alert-warning" style="display: none;">
+                                <i class="fas fa-exclamation-triangle"></i> 
+                                <?php echo $lang['no_slots_available'] ?? 'No available time slots for selected date'; ?>
+                            </div>
+                        </div>
+                        
+                        <!-- Booking Type (Regular vs Urgent) -->
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <strong><?php echo $lang['booking_type'] ?? 'Booking Type'; ?></strong>
+                            </label>
+                            <div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="booking_type" id="bookingRegular" value="Regular" checked>
+                                    <label class="form-check-label" for="bookingRegular">
+                                        <strong><?php echo $lang['booking_regular'] ?? 'Regular Check-up'; ?></strong>
+                                        <br><small class="text-muted"><?php echo $lang['regular_info'] ?? 'Book early morning slot for regular appointments'; ?></small>
+                                    </label>
+                                </div>
+                                <div class="form-check mt-2">
+                                    <input class="form-check-input" type="radio" name="booking_type" id="bookingUrgent" value="Urgent">
+                                    <label class="form-check-label" for="bookingUrgent">
+                                        <strong class="text-warning"><?php echo $lang['booking_urgent'] ?? 'Urgent'; ?></strong>
+                                        <br><small class="text-muted"><?php echo $lang['urgent_info'] ?? 'For conditions that need earlier attention'; ?></small>
+                                    </label>
+                                </div>
+                            </div>
                         </div>
                     </fieldset>
                     
@@ -962,8 +1079,142 @@ function collectSymptoms() {
 }
 
 /**
+ * Fetch hospitals from API and display them
+ */
+function fetchAndDisplayHospitals(apiUrl, hospitalContainer, hospitalOptions) {
+    fetch(apiUrl)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Hospitals API response:', data);
+            
+            // Handle the API response - hospitals are nested under data.hospitals
+            const hospitals = data.data?.hospitals || data.data || [];
+            
+            if (data.success && hospitals.length > 0) {
+                // Create a wrapper div with recommended hospital info and select dropdown
+                let hospitalHTML = '<div class="hospital-selection-wrapper">';
+                
+                // Show recommended hospital info with detailed reasons
+                const recommendedHospital = hospitals[0];
+                const recName = recommendedHospital.hospital_name || recommendedHospital.name || 'Nearest Hospital';
+                const recDistance = recommendedHospital.distance ? ` (${recommendedHospital.distance} km away)` : '';
+                const recScore = recommendedHospital.priority_score || 0;
+                const recType = recommendedHospital.type || 'Hospital';
+                
+                // Build reasons explanation
+                let reasonsText = 'Based on: ';
+                const reasons = recommendedHospital.priority_reasons || [];
+                const reasonLabels = {
+                    'location_priority': 'Best location',
+                    'specialty_match:1': 'Matches 1 specialty',
+                    'specialty_match:2': 'Matches 2 specialties',
+                    'specialty_match:3': 'Matches 3 specialties',
+                    'specialty_match:4': 'Matches 4 specialties',
+                    'specialty_match:5': 'Matches 5 specialties',
+                    'nearby_under_5km': 'Within 5km',
+                    'nearby_under_10km': 'Within 10km',
+                    'nearby_under_20km': 'Within 20km',
+                    'nearby_under_50km': 'Within 50km',
+                    'government_hospital': 'Government hospital',
+                };
+                
+                // Convert specialty match numbers
+                const displayReasons = reasons.map(r => {
+                    for (let key in reasonLabels) {
+                        if (r.startsWith('specialty_match:')) {
+                            const matches = r.split(':')[1];
+                            return `Matches ${matches} specialty(ies)`;
+                        }
+                        if (r === key) {
+                            return reasonLabels[key];
+                        }
+                    }
+                    return r;
+                });
+                
+                reasonsText += displayReasons.join(', ');
+                
+                hospitalHTML += `
+                    <div class="alert alert-success mb-3" style="border-left: 4px solid #28a745;">
+                        <div style="display: flex; align-items: flex-start;">
+                            <i class="fas fa-star" style="color: #ffc107; font-size: 1.5rem; margin-right: 12px; margin-top: 2px;"></i>
+                            <div style="flex: 1;">
+                                <strong style="font-size: 1.1rem;">⭐ Recommended: ${recName}</strong><br>
+                                <small class="text-muted">${recType}${recDistance}</small><br>
+                                <small style="color: #666;">${reasonsText}</small>
+                                <button type="button" class="btn btn-sm btn-link p-0 ms-2" onclick="showHospitalDetails()" style="font-size: 0.9rem;">View details →</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // Create select dropdown
+                hospitalHTML += '<select class="form-control form-control-lg" id="hospital_id" name="hospital_id" required>';
+                
+                // Display first (recommended) as selected with special label
+                const firstHospital = hospitals[0];
+                const firstName = firstHospital.hospital_name || firstHospital.name || 'Unknown Hospital';
+                const firstDistance = firstHospital.distance ? ` - ${firstHospital.distance} km` : '';
+                hospitalHTML += `<option value="${firstHospital.id}" selected>⭐ ${firstName}${firstDistance} (RECOMMENDED)</option>`;
+                
+                // Display other hospitals
+                hospitals.slice(1).forEach(hospital => {
+                    const hospitalName = hospital.hospital_name || hospital.name || 'Unknown Hospital';
+                    const distance = hospital.distance ? ` - ${hospital.distance} km` : '';
+                    const typeLabel = hospital.type === 'Government' ? ' [Govt]' : (hospital.type === 'Private' ? ' [Private]' : '');
+                    const distanceNote = distance ? ` (${distance.replace(' - ', '')})` : '';
+                    hospitalHTML += `<option value="${hospital.id}">${hospitalName}${typeLabel}${distanceNote}</option>`;
+                });
+                
+                hospitalHTML += '</select>';
+                hospitalHTML += '</div>'; // Close wrapper
+                
+                hospitalOptions.innerHTML = hospitalHTML;
+                hospitalContainer.style.display = 'block';
+                console.log(`Loaded ${hospitals.length} hospitals. Recommended: ${firstName}`);
+                
+                // Attach event listener after element is created
+                setTimeout(attachHospitalEventListener, 100);
+                
+                // Auto-trigger appointment dates loading for the recommended hospital
+                setTimeout(() => {
+                    const deptRadios = document.querySelectorAll('input[name="department_id"]');
+                    if (deptRadios.length > 0 && deptRadios[0].checked) {
+                        loadAppointmentDates();
+                    }
+                }, 150);
+            } else {
+                hospitalOptions.innerHTML = '<div class="alert alert-warning"><i class="fas fa-exclamation-triangle"></i> No hospitals found in your area. Please try a different location.</div>';
+                hospitalContainer.style.display = 'block';
+                console.log('No hospitals available:', data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error loading hospitals:', error);
+            hospitalOptions.innerHTML = '<div class="alert alert-danger"><i class="fas fa-exclamation-circle"></i> Error loading hospitals. Please try again.</div>';
+            hospitalContainer.style.display = 'block';
+        });
+}
+
+/**
+ * Show hospital details (can be extended to show modal with detailed info)
+ */
+function showHospitalDetails() {
+    const hospitalSelect = document.getElementById('hospital_id');
+    if (hospitalSelect) {
+        alert('Hospital details feature coming soon!');
+    }
+}
+
+/**
  * Load nearby hospitals with priority ranking
  * Called when ward is selected
+ * Uses geolocation for better proximity-based recommendations
  */
 function loadNearbyHospitals() {
     const district = document.getElementById('district');
@@ -972,14 +1223,14 @@ function loadNearbyHospitals() {
     const hospitalContainer = document.getElementById('hospitalSuggestionContainer');
     const hospitalOptions = document.getElementById('hospitalOptions');
     
-    if (!district || !municipality || !ward || !district.value || !municipality.value) {
+    if (!district || !municipality || !district.value || !municipality.value) {
         hospitalContainer.style.display = 'none';
         return;
     }
     
     // Show loading state
     hospitalContainer.style.display = 'block';
-    hospitalOptions.innerHTML = '<select class="form-control form-control-lg" disabled><option value="">Loading hospitals...</option></select>';
+    hospitalOptions.innerHTML = '<div class="alert alert-info"><i class="fas fa-spinner fa-spin"></i> Finding nearest hospitals for you...</div>';
     
     // Collect symptoms from form
     let symptoms = collectSymptoms();
@@ -995,77 +1246,219 @@ function loadNearbyHospitals() {
     console.log('Loading hospitals with URL:', apiUrl);
     console.log('Symptoms collected:', symptoms);
     
-    // Optional: Add user location for distance calculation if available
+    // Try to get user's geolocation for better proximity ranking
     if ('geolocation' in navigator) {
         navigator.geolocation.getCurrentPosition(
             function(position) {
-                console.log('Geolocation available: ', position.coords);
-                apiUrl += `&latitude=${position.coords.latitude}&longitude=${position.coords.longitude}`;
+                console.log('Geolocation available:', position.coords);
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
+                apiUrl += `&latitude=${lat}&longitude=${lon}`;
+                console.log(`User location: ${lat}, ${lon}`);
                 fetchAndDisplayHospitals(apiUrl, hospitalContainer, hospitalOptions);
             },
             function(error) {
-                console.log('Geolocation not available:', error);
+                console.log('Geolocation not available or denied:', error.message);
+                // Proceed without geolocation - API will still return hospitals sorted by municipality priority
+                console.log('Proceeding with municipality-based recommendations');
                 fetchAndDisplayHospitals(apiUrl, hospitalContainer, hospitalOptions);
             },
-            { timeout: 5000 }  // 5 second timeout for geolocation
+            { 
+                timeout: 5000,  // 5 second timeout for geolocation
+                enableHighAccuracy: false, // Don't need high accuracy for hospital proximity
+                maximumAge: 60000 // Cache position for 1 minute
+            }
         );
     } else {
+        console.log('Geolocation not supported - using municipality-based ranking');
         fetchAndDisplayHospitals(apiUrl, hospitalContainer, hospitalOptions);
     }
 }
 
 /**
- * Fetch and display hospitals with priority ranking
+ * Load appointment dates for selected hospital and department
+ * Called when hospital or department is selected
  */
-function fetchAndDisplayHospitals(apiUrl, hospitalContainer, hospitalOptions) {
+function loadAppointmentDates() {
+    const hospitalSelect = document.getElementById('hospital_id');
+    const deptRadios = document.querySelectorAll('input[name="department_id"]');
+    const dateSelect = document.getElementById('appointmentDate');
+    
+    if (!dateSelect) {
+        console.log('Date select element not found');
+        return;
+    }
+    
+    let hospitalId = hospitalSelect ? hospitalSelect.value : null;
+    let departmentId = null;
+    
+    // Get selected department
+    for (let radio of deptRadios) {
+        if (radio.checked) {
+            departmentId = radio.value;
+            break;
+        }
+    }
+    
+    // Reset if no selection
+    if (!hospitalId || !departmentId) {
+        dateSelect.innerHTML = '<option value="">Select hospital and department first...</option>';
+        dateSelect.disabled = true;
+        return;
+    }
+    
+    // Show loading state
+    dateSelect.innerHTML = '<option value="">Loading available dates...</option>';
+    dateSelect.disabled = false;
+    
+    const apiUrl = `/smarthealth_nepal/backend/api/get_appointment_slots.php?action=get_dates&hospital_id=${hospitalId}&department_id=${departmentId}`;
+    
+    console.log('Loading dates from URL:', apiUrl);
+    
     fetch(apiUrl)
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
         .then(data => {
-            console.log('API Response:', data);
+            console.log('Dates API response:', data);
+            dateSelect.disabled = false;
             
-            if (data.success && data.data && data.data.hospitals && data.data.hospitals.length > 0) {
-                hospitalContainer.style.display = 'block';
+            if (data.success && data.data && data.data.length > 0) {
+                let dateHTML = '<option value="">Select a date...</option>';
                 
-                // Create select dropdown instead of radio cards
-                let selectHTML = '<select class="form-control form-control-lg" id="hospital_id" name="hospital_id" required>';
-                selectHTML += '<option value="">-- Select Hospital --</option>';
-                
-                data.data.hospitals.forEach((hospital, index) => {
-                    const isRecommended = index === 0;
-                    const specialities = Array.isArray(hospital.specialities) ? 
-                                        hospital.specialities : 
-                                        (hospital.specialities ? JSON.parse(hospital.specialities) : []);
-                    
-                    // Format option text with recommended label for first one
-                    let optionText = hospital.hospital_name;
-                    if (isRecommended) {
-                        optionText += ' [⭐ Recommended Nearest]';
-                    }
-                    
-                    // Add location info
-                    optionText += ` - ${hospital.municipality}, Ward ${hospital.ward || '1'}`;
-                    
-                    selectHTML += `<option value="${hospital.id}" ${isRecommended ? 'selected' : ''}>${optionText}</option>`;
+                data.data.forEach(dateInfo => {
+                    const displayText = `${dateInfo.formatted_date} (${dateInfo.available_spots} slots available)`;
+                    dateHTML += `<option value="${dateInfo.slot_date}">${displayText}</option>`;
                 });
                 
-                selectHTML += '</select>';
-                hospitalOptions.innerHTML = selectHTML;
-                
-                console.log(`Loaded ${data.data.hospitals.length} hospitals in dropdown`);
+                dateSelect.innerHTML = dateHTML;
+                console.log(`Loaded ${data.data.length} available dates`);
             } else {
-                hospitalContainer.style.display = 'block';
-                const noHospMsg = data.data && typeof data.data === 'object' ? 
-                    `Available: ${data.data.total_hospitals || 0} hospitals found` : 
-                    'Checking for hospitals...';
-                hospitalOptions.innerHTML = `<div class="alert alert-info"><i class="fas fa-info-circle"></i> No hospitals available in this location yet. <br><strong>${noHospMsg}</strong></div>`;
-                console.log('No hospitals in response:', data);
+                dateSelect.innerHTML = '<option value="">No available dates for this department</option>';
+                console.log('No dates available:', data.message);
             }
         })
         .catch(error => {
-            console.error('Error loading hospitals:', error);
-            hospitalOptions.innerHTML = '<div class="alert alert-danger"><i class="fas fa-exclamation-circle"></i> Error loading hospitals. Please check your internet connection and try again.</div>';
+            console.error('Error loading dates:', error);
+            dateSelect.disabled = false;
+            dateSelect.innerHTML = '<option value="">Error loading dates</option>';
         });
 }
+
+/**
+ * Load time slots for selected date
+ * Called when appointment date is selected
+ */
+function loadTimeSlots() {
+    const hospitalSelect = document.getElementById('hospital_id');
+    const deptRadios = document.querySelectorAll('input[name="department_id"]');
+    const dateSelect = document.getElementById('appointmentDate');
+    const slotSelect = document.getElementById('appointmentSlot');
+    const timeSlotsContainer = document.getElementById('timeSlotsContainer');
+    const noSlotsMsg = document.getElementById('noSlotsAvailable');
+    
+    const hospitalId = hospitalSelect ? hospitalSelect.value : null;
+    let departmentId = null;
+    const slotDate = dateSelect.value;
+    
+    // Get selected department
+    for (let radio of deptRadios) {
+        if (radio.checked) {
+            departmentId = radio.value;
+            break;
+        }
+    }
+    
+    // Reset if incomplete
+    if (!hospitalId || !departmentId || !slotDate) {
+        timeSlotsContainer.style.display = 'none';
+        noSlotsMsg.style.display = 'none';
+        slotSelect.innerHTML = '<option value="">Select date first...</option>';
+        return;
+    }
+    
+    // Show loading state
+    slotSelect.innerHTML = '<option value="">Loading time slots...</option>';
+    timeSlotsContainer.style.display = 'block';
+    noSlotsMsg.style.display = 'none';
+    
+    const apiUrl = `/smarthealth_nepal/backend/api/get_appointment_slots.php?action=get_slots&hospital_id=${hospitalId}&department_id=${departmentId}&slot_date=${slotDate}`;
+    
+    fetch(apiUrl)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.data && data.data.length > 0) {
+                let slotHTML = '<option value="">Select a time window...</option>';
+                
+                data.data.forEach(slot => {
+                    const slotText = `${slot.time_window_start.substring(0, 5)} - ${slot.time_window_end.substring(0, 5)} (${slot.slot_type}, ${slot.available_spots} spot${slot.available_spots !== 1 ? 's' : ''})`;
+                    slotHTML += `<option value="${slot.id}">${slotText}</option>`;
+                });
+                
+                slotSelect.innerHTML = slotHTML;
+                timeSlotsContainer.style.display = 'block';
+                noSlotsMsg.style.display = 'none';
+                console.log(`Loaded ${data.data.length} time slots`);
+            } else {
+                slotSelect.innerHTML = '<option value="">No available slots for this date</option>';
+                timeSlotsContainer.style.display = 'block';
+                noSlotsMsg.style.display = 'block';
+                console.log('No slots available:', data.message);
+            }
+        })
+        .catch(error => {
+            slotSelect.innerHTML = '<option value="">Error loading slots</option>';
+            timeSlotsContainer.style.display = 'block';
+            noSlotsMsg.style.display = 'block';
+            console.error('Error loading slots:', error);
+        });
+}
+
+/**
+ * Attach event listener to hospital select (used after hospitals are loaded)
+ */
+function attachHospitalEventListener() {
+    const hospitalSelect = document.getElementById('hospital_id');
+    if (hospitalSelect && !hospitalSelect.hasAttribute('data-listener-attached')) {
+        hospitalSelect.addEventListener('change', function() {
+            console.log('Hospital changed, loading dates');
+            loadAppointmentDates();
+        });
+        hospitalSelect.setAttribute('data-listener-attached', 'true');
+        console.log('Hospital event listener attached');
+    }
+}
+
+/**
+ * Initialize appointment scheduling when hospital or department changes
+ */
+document.addEventListener('DOMContentLoaded', function() {
+    const deptRadios = document.querySelectorAll('input[name="department_id"]');
+    const dateSelect = document.getElementById('appointmentDate');
+    
+    // Load dates when department changes
+    deptRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            console.log('Department changed, loading dates');
+            loadAppointmentDates();
+        });
+    });
+    
+    // Try to attach hospital listener if it already exists (e.g., pre-selected)
+    setTimeout(attachHospitalEventListener, 100);
+    
+    // Initial load if hospital already selected
+    setTimeout(function() {
+        const hospitalSelect = document.getElementById('hospital_id');
+        if (hospitalSelect && hospitalSelect.value) {
+            console.log('Hospital pre-selected, loading dates');
+            loadAppointmentDates();
+        }
+    }, 200);
+});
 </script>
 
 <?php require_once __DIR__ . '/../layouts/footer.php';?>

@@ -86,6 +86,26 @@ class TimeHelper {
         $days = self::daysUntil($date);
         return $days >= 0 && $days <= 7;
     }
+    
+    /**
+     * Format minutes to human-readable time format (Xhr Ymin)
+     * @param int $minutes - total minutes
+     * @return string - formatted time string (e.g., "1h 30min", "45min")
+     */
+    public static function formatWaitTime($minutes) {
+        if ($minutes === null || $minutes < 0) {
+            return 'N/A';
+        }
+        
+        $hours = floor($minutes / 60);
+        $mins = $minutes % 60;
+        
+        if ($hours > 0) {
+            return $hours . 'h ' . $mins . 'min';
+        } else {
+            return $mins . 'min';
+        }
+    }
 }
 
 ?>

@@ -5,6 +5,7 @@
 
 require_once __DIR__ . '/../../../backend/init.php';
 require_once __DIR__ . '/../../../backend/controllers/AuthController.php';
+require_once __DIR__ . '/../../../backend/helpers/TimeHelper.php';
 
 $authController = new AuthController($db);
 // Allow confirmation page even if not logged in (just completed booking)
@@ -65,7 +66,7 @@ require_once __DIR__ . '/../layouts/header.php';
                         <div class="card border-info">
                             <div class="card-body">
                                 <h6 class="text-muted"><?php echo $lang['estimated_wait'] ?? 'Estimated Wait Time'; ?></h6>
-                                <h2 class="text-info"><?php echo $token['estimated_wait_time']; ?> <?php echo $lang['minutes'] ?? 'min'; ?></h2>
+                                <h2 class="text-info"><?php echo TimeHelper::formatWaitTime($token['estimated_wait_time']); ?></h2>
                             </div>
                         </div>
                     </div>

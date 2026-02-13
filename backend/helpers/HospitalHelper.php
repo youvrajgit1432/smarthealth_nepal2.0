@@ -29,8 +29,17 @@ class HospitalHelper {
      * @return array
      */
     public function loadHospitals($useDatabase = true) {
+        // Try database first
         if ($useDatabase) {
-            return $this->loadFromDatabase();
+            $dbData = $this->loadFromDatabase();
+            
+            // If database has hospitals, return it
+            if (!empty($dbData['hospitals'])) {
+                return $dbData;
+            }
+            
+            // If database is empty, fall back to JSON file
+            error_log("No hospitals found in database, falling back to JSON file");
         }
         
         if ($this->hospitalsData !== null) {
@@ -94,10 +103,30 @@ class HospitalHelper {
     public function getHospitalsByLocation($district, $municipality) {
         $hospitals = $this->loadHospitals();
         
-        return array_filter($hospitals['hospitals'], function($h) use ($district, $municipality) {
+        // Try exact match first (case-insensitive)
+        $exact = array_filter($hospitals['hospitals'], function($h) use ($district, $municipality) {
             return strtolower($h['district']) === strtolower($district) &&
                    strtolower($h['municipality']) === strtolower($municipality);
         });
+        
+        if (!empty($exact)) {
+            return $exact;
+        }
+        
+        // If no exact match, try partial match (starts with)
+        $partial = array_filter($hospitals['hospitals'], function($h) use ($district, $municipality) {
+            $districtMatch = strtolower($h['district']) === strtolower($district);
+            $muniMatch = stripos($h['municipality'], $municipality) !== false || 
+                        stripos($municipality, $h['municipality']) !== false;
+            return $districtMatch && $muniMatch;
+        });
+        
+        if (!empty($partial)) {
+            return $partial;
+        }
+        
+        // If still no match, return all hospitals from that district
+        return $this->getHospitalsByDistrict($district);
     }
     
     /**
@@ -558,12 +587,25 @@ class HospitalHelper {
             }
         }
         
-        // Get hospitals in this municipality
+        // Get hospitals in this municipality (with enhanced fallback logic)
         $hospitals = array_values($this->getHospitalsByLocation($district, $municipality));
         
+        // If still no hospitals, try to get all hospitals from the district
         if (empty($hospitals)) {
-            // Fallback to district level
             $hospitals = array_values($this->getHospitalsByDistrict($district));
+            error_log("No hospitals in municipality, expanding to district: " . $district);
+        }
+        
+        // If still no hospitals, get nearest hospitals by coordinates
+        if (empty($hospitals) && $latitude && $longitude) {
+            $hospitals = array_values($this->getNearestHospitals($latitude, $longitude, 20, 100));
+            error_log("No hospitals in district, using nearest hospitals by coordinates");
+        }
+        
+        // If absolutely no hospitals, return empty array with info
+        if (empty($hospitals)) {
+            error_log("WARNING: No hospitals found for district: $district, municipality: $municipality");
+            return [];
         }
         
         // Score each hospital
@@ -599,8 +641,8 @@ class HospitalHelper {
                 $distance = $this->calculateDistance(
                     $latitude,
                     $longitude,
-                    $hospital['latitude'],
-                    $hospital['longitude']
+                    $hospital['latitude'] ?? 0,
+                    $hospital['longitude'] ?? 0
                 );
                 $hospital['distance'] = $distance;
                 

@@ -224,7 +224,7 @@ $lang = [
 
     // Offline Booking
     'offline_booking_mode' => 'Offline Booking Mode',
-    'assisted_booking' => 'Assisted Booking - At Hospital Counter',
+  
     'hospital_staff_only' => 'This is for hospital or pharmacy staff only',
     'patient_phone' => 'Patient Phone Number',
     'patient_name' => 'Patient Name (Optional)',
@@ -446,6 +446,40 @@ $lang = [
     'call_support' => 'Call Support',
     'email_support' => 'Email Support',
     'back_home' => 'Back to Home',
+    
+    // SmartHealth 2.0 - Booking Form Steps
+    'step' => 'Step',
+    'appointment_date' => 'Appointment Date',
+    'select_date' => 'Select Appointment Date',
+    'date_range_info' => 'Select a date within 7 days from today',
+    'select_time_slot' => 'Select Time Slot',
+    'time_slot' => 'Time Slot',
+    'available_slots' => 'Available Slots',
+    'select_department_first' => 'Please select a department to see available time slots',
+    'queue_status' => 'Queue Status',
+    'selected_date' => 'Selected Date',
+    'appointment_confirmed_date' => 'Appointment Date',
+    'priority' => 'Priority',
+    'normal' => 'Normal',
+    'chronic' => 'Chronic',
+    'verify_otp' => 'Verify OTP',
+    'health_assessment' => 'Complete Your Information',
+    'date_selected' => 'Date selected successfully',
+    'time_slot_selected' => 'Time slot selected successfully',
+    'invalid_date_range' => 'Please select a date within 7 days from today',
+    
+    // Appointment Scheduling
+    'appointment_scheduling' => 'Appointment Scheduling',
+    'select_preferred_date' => 'Select your preferred appointment date and time:',
+    'preferred_date' => 'Preferred Date',
+    'time_window' => 'Preferred Time Window',
+    'booking_type' => 'Booking Type',
+    'booking_regular' => 'Regular Check-up',
+    'booking_urgent' => 'Urgent',
+    'regular_info' => 'Book early morning slot for regular appointments',
+    'urgent_info' => 'For conditions that need earlier attention',
+    'no_slots_available' => 'No available time slots for selected date',
+    'date_info' => 'Only dates with available slots are shown',
 ];
 
 ?>
