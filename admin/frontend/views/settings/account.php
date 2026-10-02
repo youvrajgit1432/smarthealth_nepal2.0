@@ -340,19 +340,6 @@ require_once __DIR__ . '/../layouts/sidebar.php'; ?>
                 <div class="form-help">Current session started</div>
             </div>
         </div>
-        
-        <!-- API & Integration -->
-        <div class="settings-card">
-            <h3><i class="fas fa-plug"></i> Integrations</h3>
-            
-            <div class="info-box">
-                API keys and third-party integrations will be available soon
-            </div>
-            
-            <button type="button" class="btn-submit" disabled style="background: #6c757d; cursor: not-allowed;">
-                <i class="fas fa-lock"></i> API Keys (Coming Soon)
-            </button>
-        </div>
     </div>
     
     <!-- Save Settings Button -->

@@ -20,9 +20,9 @@ $hospital_id = $_GET['hospital_id'] ?? $_POST['hospital_id'] ?? $_SESSION['hospi
 try {
     include_once '../../backend/config/database.php';
     
-    $db = new \PDO("mysql:host={$_ENV['DB_HOST']};dbname={$_ENV['DB_NAME']}", 
-                  $_ENV['DB_USER'], 
-                  $_ENV['DB_PASSWORD']);
+    $db = new \PDO("mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";port=" . DB_PORT,
+                  DB_USER,
+                  DB_PASSWORD);
     $db->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 
     // Hospital admin can only access their hospital

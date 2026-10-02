@@ -88,4 +88,10 @@ class ChronicDiseaseModel {
     }
 }
 
+// The class in this file is used by TrackingController under the name
+// "HealthRecordModel" (the file's name). Provide an alias so both names work.
+if (!class_exists('HealthRecordModel', false)) {
+    class_alias('ChronicDiseaseModel', 'HealthRecordModel');
+}
+
 ?>

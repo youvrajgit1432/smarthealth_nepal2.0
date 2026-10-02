@@ -14,9 +14,9 @@ $hospital_id = $_GET['id'] ?? null;
 try {
     include_once '../backend/config/database.php';
     
-    $db = new \PDO("mysql:host={$_ENV['DB_HOST']};dbname={$_ENV['DB_NAME']}", 
-                  $_ENV['DB_USER'], 
-                  $_ENV['DB_PASSWORD']);
+    $db = new \PDO("mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";port=" . DB_PORT,
+                  DB_USER,
+                  DB_PASSWORD);
     $db->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 
     // Get hospital details
@@ -102,7 +102,7 @@ try {
         }
 
         header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%);
             color: white;
             padding: 20px;
         }
@@ -201,7 +201,7 @@ try {
         }
 
         .info-section a {
-            color: #667eea;
+            color: #1565c0;
             text-decoration: none;
         }
 
@@ -279,8 +279,8 @@ try {
         .form-group select:focus,
         .form-group textarea:focus {
             outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            border-color: #1565c0;
+            box-shadow: 0 0 0 3px rgba(21, 101, 192, 0.1);
         }
 
         .form-row {
@@ -290,7 +290,7 @@ try {
         }
 
         .submit-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%);
             color: white;
             padding: 12px 30px;
             border: none;
@@ -304,7 +304,7 @@ try {
 
         .submit-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 5px 15px rgba(21, 101, 192, 0.3);
         }
 
         .departments-section {
@@ -330,7 +330,7 @@ try {
             background: #f9f9f9;
             padding: 15px;
             border-radius: 5px;
-            border-left: 4px solid #667eea;
+            border-left: 4px solid #1565c0;
         }
 
         .department-card h3 {
@@ -419,7 +419,11 @@ try {
                     <div class="info-section">
                         <h3>Hours</h3>
                         <div class="hours">
-                            <p><strong>Regular Hours:</strong><br><?php echo htmlspecialchars($hospital['opening_time']); ?> - <?php echo htmlspecialchars($hospital['closing_time']); ?></p>
+                            <?php if (!empty($hospital['opening_time']) && !empty($hospital['closing_time'])): ?>
+                                <p><strong>Regular Hours:</strong><br><?php echo htmlspecialchars($hospital['opening_time']); ?> - <?php echo htmlspecialchars($hospital['closing_time']); ?></p>
+                            <?php else: ?>
+                                <p><strong>Regular Hours:</strong><br>Contact the hospital for current operating hours.</p>
+                            <?php endif; ?>
                             <?php if ($hospital['emergency_24_7']): ?>
                                 <p style="margin-top: 10px;"><strong>Emergency:</strong> 24/7 Available</p>
                             <?php endif; ?>
@@ -524,7 +528,7 @@ try {
                             <div class="department-card">
                                 <h3><?php echo htmlspecialchars($dept['name_en']); ?></h3>
                                 <p><?php echo htmlspecialchars(substr($dept['description_en'] ?? '', 0, 80)); ?>...</p>
-                                <p style="margin-top: 10px; color: #667eea; font-weight: 600;">
+                                <p style="margin-top: 10px; color: #1565c0; font-weight: 600;">
                                     <?php echo $dept['current_daily_tokens'] ?? 0; ?>/<?php echo $dept['max_tokens_per_day']; ?> tokens
                                 </p>
                             </div>

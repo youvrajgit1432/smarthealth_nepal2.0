@@ -13,9 +13,6 @@ if (!isset($_SESSION['admin_id'])) {
     exit;
 }
 
-// Log API call
-error_log("Complete Token API - Admin ID: {$_SESSION['admin_id']}, Request: " . print_r($_REQUEST, true));
-
 global $db;
 $response = ['success' => false, 'message' => ''];
 
@@ -39,7 +36,7 @@ if ($token_id <= 0) {
 $query = "SELECT t.id, t.status, t.token_number FROM tokens t";
 
 if ($_SESSION['admin_role'] !== 'SuperAdmin' && isset($_SESSION['hospital_id'])) {
-    $query .= " INNER JOIN departments d ON t.department_id = d.id WHERE t.id = ? AND d.hospital_id = ?";
+    $query .= " WHERE t.id = ? AND t.hospital_id = ?";
 } else {
     $query .= " WHERE t.id = ?";
 }

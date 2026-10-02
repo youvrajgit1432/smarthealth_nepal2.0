@@ -26,8 +26,6 @@ if (!isset($_SESSION['language'])) {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="/smarthealth_nepal/frontend/public/assets/css/main.css">
-    <link rel="stylesheet" href="/smarthealth_nepal/frontend/public/assets/css/responsive.css">
-    <link rel="stylesheet" href="/smarthealth_nepal/frontend/public/assets/css/smarthealth-2.0.css">
     
     <style>
         :root {
@@ -47,6 +45,19 @@ if (!isset($_SESSION['language'])) {
             --priority-color: #FF5722;
             --normal-color: #2196F3;
             --chronic-color: #9C27B0;
+        }
+
+        /* Visible keyboard focus for accessibility */
+        a:focus-visible,
+        button:focus-visible,
+        input:focus-visible,
+        select:focus-visible,
+        textarea:focus-visible,
+        .nav-link:focus-visible,
+        .btn:focus-visible {
+            outline: 3px solid #ffbf47;
+            outline-offset: 2px;
+            border-radius: 4px;
         }
         
         * {
@@ -340,6 +351,7 @@ if (!isset($_SESSION['language'])) {
     </style>
 </head>
 <body>
+    <a href="#main-content" class="visually-hidden-focusable">Skip to main content</a>
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container-fluid">
             <!-- Logo Section -->
@@ -358,12 +370,12 @@ if (!isset($_SESSION['language'])) {
                 <!-- Left Navigation -->
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link <?php echo isset($activePage) && $activePage === 'home' ? 'active' : ''; ?>" href="/smarthealth_nepal/frontend/public/">
+                        <a class="nav-link <?php echo isset($activePage) && $activePage === 'home' ? 'active' : ''; ?>" href="/smarthealth_nepal/frontend/public/" <?php echo (isset($activePage) && $activePage === 'home') ? 'aria-current="page"' : ''; ?>>
                             <?php echo isset($lang['home']) ? $lang['home'] : 'Home'; ?>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#how-it-works">
+                        <a class="nav-link" href="/smarthealth_nepal/frontend/public/#how-it-works">
                             <?php echo isset($lang['how_it_works']) ? $lang['how_it_works'] : 'How It Works'; ?>
                         </a>
                     </li>
@@ -373,22 +385,22 @@ if (!isset($_SESSION['language'])) {
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#offices">
+                        <a class="nav-link" href="/smarthealth_nepal/frontend/public/#offices">
                             <?php echo isset($lang['offices']) ? $lang['offices'] : 'Offices'; ?>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?php echo isset($activePage) && $activePage === 'status' ? 'active' : ''; ?>" href="/smarthealth_nepal/frontend/views/token/status.php">
+                        <a class="nav-link <?php echo isset($activePage) && $activePage === 'status' ? 'active' : ''; ?>" href="/smarthealth_nepal/frontend/views/token/status.php" <?php echo (isset($activePage) && $activePage === 'status') ? 'aria-current="page"' : ''; ?>>
                             <?php echo isset($lang['track_status']) ? $lang['track_status'] : 'Track Status'; ?>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#about">
+                        <a class="nav-link" href="/smarthealth_nepal/frontend/views/home/about.php">
                             <?php echo isset($lang['about']) ? $lang['about'] : 'About'; ?>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#contact">
+                        <a class="nav-link" href="/smarthealth_nepal/frontend/views/home/contact.php">
                             <?php echo isset($lang['contact']) ? $lang['contact'] : 'Contact'; ?>
                         </a>
                     </li>
@@ -475,7 +487,10 @@ if (!isset($_SESSION['language'])) {
             </div>
         </div>
     </nav>
-    
+
+    <!-- Skip-link target -->
+    <div id="main-content" tabindex="-1"></div>
+
     <script>
         // Add dark overlay effect when dropdown is opened
         document.addEventListener('DOMContentLoaded', function() {

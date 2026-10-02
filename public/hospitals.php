@@ -11,9 +11,9 @@ $error = '';
 try {
     include_once '../backend/config/database.php';
     
-    $db = new \PDO("mysql:host={$_ENV['DB_HOST']};dbname={$_ENV['DB_NAME']}", 
-                  $_ENV['DB_USER'], 
-                  $_ENV['DB_PASSWORD']);
+    $db = new \PDO("mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";port=" . DB_PORT,
+                  DB_USER,
+                  DB_PASSWORD);
     $db->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 
     // Get all active hospitals
@@ -65,7 +65,7 @@ if (!empty($hospitals)) {
         }
 
         header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%);
             color: white;
             padding: 40px 20px;
             text-align: center;
@@ -183,7 +183,7 @@ if (!empty($hospitals)) {
         }
 
         .info-row a {
-            color: #667eea;
+            color: #1565c0;
             text-decoration: none;
         }
 
@@ -253,7 +253,7 @@ if (!empty($hospitals)) {
         }
 
         .book-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%);
             color: white;
             padding: 12px;
             border: none;
@@ -268,7 +268,7 @@ if (!empty($hospitals)) {
 
         .book-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 5px 15px rgba(21, 101, 192, 0.3);
         }
 
         .empty-state {
@@ -289,7 +289,7 @@ if (!empty($hospitals)) {
         }
 
         nav a {
-            color: #667eea;
+            color: #1565c0;
             text-decoration: none;
             margin: 0 15px;
             font-size: 14px;

@@ -40,8 +40,8 @@ $is_superadmin = $_SESSION['admin_role'] === 'superadmin';
 $admin_hospital_id = $_SESSION['hospital_id'] ?? null;
 
 // Verify service exists
-$sql_check = "SELECT s.id FROM services s 
-              LEFT JOIN departments d ON s.department_id = d.id 
+$sql_check = "SELECT s.id FROM services s
+              LEFT JOIN departments d ON s.dept_id = d.id
               WHERE s.id = ?";
 
 if (!$is_superadmin && $admin_hospital_id) {

@@ -5,6 +5,7 @@
  */
 
 require_once __DIR__ . '/../../../backend/init.php';
+require_once __DIR__ . '/../../../../backend/helpers/CsrfHelper.php';
 require_once __DIR__ . '/../../../backend/controllers/DashboardController.php';
 
 // Check admin login
@@ -134,7 +135,7 @@ function sendSMS() {
     fetch('/smarthealth_nepal/admin/api/send_sms.php', {
         method: 'POST',
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-        body: 'phone=' + encodeURIComponent(phone) + '&message=' + encodeURIComponent(message)
+        body: 'phone=' + encodeURIComponent(phone) + '&message=' + encodeURIComponent(message) + '&csrf_token=' + encodeURIComponent('<?php echo csrf_token(); ?>')
     })
     .then(r => r.json())
     .then(d => {

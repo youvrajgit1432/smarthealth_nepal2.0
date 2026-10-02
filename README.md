@@ -39,6 +39,130 @@ SmartHealth Nepal is an innovative, bilingual healthcare management system desig
 | **Session Management** | Native PHP Sessions |
 | **Language Support** | English (en), Nepali (नेपाली) |
 
+### 🔐 Demo Login Credentials (LOCAL DEVELOPMENT ONLY)
+
+These accounts are re-created by `database/smarthealth.sql` and use **fictional**
+data. They exist purely for local demonstration.
+
+| Portal | URL | Login | Password / MPIN |
+|---|---|---|---|
+| Patient | `http://localhost/smarthealth_nepal/` | phone `9777770001` | MPIN `3684` |
+| Hospital (Bir Hospital) | `http://localhost/smarthealth_nepal/admin/hospital/` | `bir_admin` | `hospital123` |
+| Super Admin | `http://localhost/smarthealth_nepal/admin/` | `admin@smarthealth.local` (or `admin`) | `admin123` |
+
+> ⚠️ **LOCAL DEMO ONLY.** Never ship these credentials to production. Delete or
+> replace the demo accounts before any real deployment.
+
+
+---
+
+### 🖼️ Product Gallery
+
+Three connected portals built on one codebase and one MySQL schema:
+
+| Portal | Audience | Highlights |
+|---|---|---|
+| **Patient app** | Citizens | Bilingual booking, live token status, chronic & maternal care |
+| **Hospital portal** | Hospital staff | Live queue control, assisted bookings, department & staff management |
+| **Super admin** | National office | Token oversight, users, services and office management |
+
+<a href="docs/images/smarthealth/patient/01-home.png">
+  <img src="docs/images/smarthealth/patient/01-home.png" alt="SmartHealth Nepal patient home page" width="100%">
+</a>
+
+> Patient home — bilingual entry point with one-tap token booking and live queue access.
+
+---
+
+#### 🧑‍🥺 Patient Experience
+
+<table>
+<tr>
+<td width="50%"><img src="docs/images/smarthealth/patient/05-token-booking.png" alt="Token booking"><br><sub><b>Token booking</b> — location-aware hospital picker with triage intake</sub></td>
+<td width="50%"><img src="docs/images/smarthealth/patient/07-token-status.png" alt="Live token status"><br><sub><b>Live token status</b> — position, ETA and progress tracking</sub></td>
+</tr>
+<tr>
+<td width="50%"><img src="docs/images/smarthealth/patient/06-token-confirmation.png" alt="Token confirmation"><br><sub><b>Booking confirmation</b> — generated token with department and priority</sub></td>
+<td width="50%"><img src="docs/images/smarthealth/patient/04-pre-triage.png" alt="Pre-triage"><br><sub><b>Digital pre-triage</b> — symptom capture drives automatic priority sorting</sub></td>
+</tr>
+<tr>
+<td width="50%"><img src="docs/images/smarthealth/patient/09-chronic-care.png" alt="Chronic care tracking"><br><sub><b>Chronic care tracking</b> — follow-ups and reminders</sub></td>
+<td width="50%"><img src="docs/images/smarthealth/patient/10-maternal-care.png" alt="Maternal care tracking"><br><sub><b>Maternal care</b> — pregnancy milestones and vaccination reminders</sub></td>
+</tr>
+</table>
+
+<p>
+  <img src="docs/images/smarthealth/patient/11-nepali-ui.png" alt="Nepali interface" width="49%">
+  <img src="docs/images/smarthealth/patient/12-mobile.png" alt="Mobile patient home" width="22%">
+</p>
+
+> Bilingual Nepali UI and a fully responsive mobile layout.
+
+---
+
+#### 🏥 Hospital Operations
+
+<table>
+<tr>
+<td width="50%"><img src="docs/images/smarthealth/hospital/02-dashboard.png" alt="Hospital dashboard"><br><sub><b>Hospital dashboard</b> — today's tokens, departments and assisted bookings</sub></td>
+<td width="50%"><img src="docs/images/smarthealth/hospital/03-token-management.png" alt="Token management"><br><sub><b>Token management</b> — filters, search and queue actions</sub></td>
+</tr>
+<tr>
+<td width="50%"><img src="docs/images/smarthealth/hospital/04-token-details.png" alt="Token details dialog"><br><sub><b>Token details</b> — accessible, focus-managed dialog</sub></td>
+<td width="50%"><img src="docs/images/smarthealth/hospital/06-new-booking-modal.png" alt="New assisted booking"><br><sub><b>Assisted booking</b> — staff create bookings for walk-in patients</sub></td>
+</tr>
+<tr>
+<td width="50%"><img src="docs/images/smarthealth/hospital/07-departments.png" alt="Departments"><br><sub><b>Departments</b> — capacity and availability control</sub></td>
+<td width="50%"><img src="docs/images/smarthealth/hospital/11-reports.png" alt="Reports"><br><sub><b>Reports</b> — operational summaries</sub></td>
+</tr>
+</table>
+
+---
+
+#### 🛡️ Super Administration
+
+<table>
+<tr>
+<td width="50%"><img src="docs/images/smarthealth/admin/02-dashboard.png" alt="Super admin dashboard"><br><sub><b>National overview</b> — cross-hospital token activity</sub></td>
+<td width="50%"><img src="docs/images/smarthealth/admin/03-token-management.png" alt="Admin token management"><br><sub><b>Token oversight</b> — call, complete and miss across hospitals</sub></td>
+</tr>
+<tr>
+<td width="50%"><img src="docs/images/smarthealth/admin/04-user-management.png" alt="User management"><br><sub><b>User management</b> — search, view, add and edit accounts</sub></td>
+<td width="50%"><img src="docs/images/smarthealth/admin/06-office-management.png" alt="Office management"><br><sub><b>Office & department management</b></sub></td>
+</tr>
+</table>
+
+<details>
+<summary><b>More screenshots (logins, settings, staff & service management)</b></summary>
+
+<table>
+<tr>
+<td width="33%"><img src="docs/images/smarthealth/patient/02-login.png" alt="Patient login"><br><sub>Patient login (phone + MPIN)</sub></td>
+<td width="33%"><img src="docs/images/smarthealth/hospital/01-login.png" alt="Hospital login"><br><sub>Hospital portal login</sub></td>
+<td width="33%"><img src="docs/images/smarthealth/admin/01-login.png" alt="Admin login"><br><sub>Super admin login</sub></td>
+</tr>
+<tr>
+<td width="33%"><img src="docs/images/smarthealth/patient/08-profile-health.png" alt="Profile health history"><br><sub>Health history</sub></td>
+<td width="33%"><img src="docs/images/smarthealth/hospital/05-assisted-bookings.png" alt="Assisted bookings list"><br><sub>Assisted bookings list</sub></td>
+<td width="33%"><img src="docs/images/smarthealth/hospital/09-staff.png" alt="Staff management"><br><sub>Staff management</sub></td>
+</tr>
+<tr>
+<td width="33%"><img src="docs/images/smarthealth/hospital/08-department-edit.png" alt="Department edit dialog"><br><sub>Department edit dialog</sub></td>
+<td width="33%"><img src="docs/images/smarthealth/hospital/10-settings.png" alt="Hospital settings"><br><sub>Hospital settings</sub></td>
+<td width="33%"><img src="docs/images/smarthealth/admin/05-service-management.png" alt="Service management"><br><sub>Service management</sub></td>
+</tr>
+<tr>
+<td width="33%"><img src="docs/images/smarthealth/admin/07-profile-settings.png" alt="Admin profile & settings"><br><sub>Profile & account settings</sub></td>
+<td width="33%"><img src="docs/images/smarthealth/patient/03-services-hospitals.png" alt="Services & hospitals"><br><sub>Services & hospital directory</sub></td>
+<td width="33%"></td>
+</tr>
+</table>
+
+</details>
+
+> All screenshots were captured from the running local application using
+> fictional demo data only — no real patient information is shown.
+
 
 ### 📁 Presentation Slide:https://gamma.app/docs/SmartHealth-Nepal-m4cmh3z414ohdqb?mode=doc
 
@@ -71,8 +195,7 @@ smarthealth_nepal/
 │
 ├── backend/                            # Core Business Logic & APIs
 │   ├── init.php                       # System initialization & bootstrap
-│   ├── otp_debug.php                  # OTP debugging utilities
-│   ├── test_hospitals_api.php         # API testing script
+│   ├── otp_debug.php                  # OTP viewer (development + admin only)
 │   ├── config/
 │   │   ├── app.php                    # Application settings
 │   │   ├── database.php               # Database connection config
@@ -141,8 +264,6 @@ smarthealth_nepal/
 │   │       └── [Other views]
 │   ├── backend/
 │   │   ├── init.php                   # Admin initialization
-│   │   ├── test_credentials.php       # Credential testing
-│   │   ├── verify_login.php           # Admin login verification
 │   │   ├── config/
 │   │   │   ├── auth.php               # Admin authentication
 │   │   │   ├── database.php           # Database config
@@ -180,7 +301,8 @@ smarthealth_nepal/
 │   └── errors.log
 │
 ├── database/
-│   └── smarthealth_nepal.sql          # Complete database schema
+│   ├── smarthealth.sql                # Canonical schema + demo seed (import this)
+│   └── archive/                       # Older partial recovery dumps (provenance only)
 │
 ├── .htaccess                          # Apache routing rules
 ├── index.php                          # Main application entry
@@ -225,22 +347,26 @@ C:\wamp\www\smarthealth_nepal\
 **Option A - Using phpMyAdmin:**
 1. Open `http://localhost/phpmyadmin`
 2. Click "New" → Database
-3. Name: `smarthealth_nepal`
+3. Name: `smarthealth`
 4. Charset: `utf8mb4_unicode_ci`
 5. Click "Create"
 6. Go to "Import" tab
-7. Choose `database/smarthealth_nepal.sql` file
+7. Choose `database/smarthealth.sql` file
 8. Click "Import"
+
+The import creates the **`smarthealth`** database and populates it with fictional
+demo data. This is the single canonical schema — do not import anything from
+`database/archive/`.
 
 **Option B - Using MySQL Command Line:**
 ```bash
-mysql -u root -p smarthealth_nepal < database/smarthealth_nepal.sql
+mysql -u root -p < database/smarthealth.sql
 ```
 
 **Option C - Using Terminal:**
 ```bash
 cd c:\xampp\htdocs\smarthealth_nepal
-mysql -u root -p < database/smarthealth_nepal.sql
+mysql -u root -p < database/smarthealth.sql
 ```
 
 ##### Step 3: Configure Database Connection
@@ -791,10 +917,9 @@ cat logs/otp_debug.log | tail -20
 ```
 
 **Database Testing:**
-```php
-// backend/test_credentials.php
-// Run this file to verify database connectivity
-// Access: http://localhost/smarthealth_nepal/backend/test_credentials.php
+```bash
+# Confirm the schema imported and the demo users exist
+mysql -u root -e "SELECT COUNT(*) AS users FROM smarthealth.users;"
 ```
 
 **SMS Testing:**
@@ -869,9 +994,9 @@ Error: "Could not connect to database"
 **Solutions:**
 - Verify MySQL is running
 - Check credentials in `backend/config/database.php`
-- Ensure database `smarthealth_nepal` exists
-- Run: `mysql -u root -p smarthealth_nepal < database/smarthealth_nepal.sql`
-- Test connection: `backend/test_credentials.php`
+- Ensure database `smarthealth` exists
+- Run: `mysql -u root -p < database/smarthealth.sql`
+- See `SETUP_GUIDE.md` for a clean-install checklist
 
 **Issue 2: Blank Page or 500 Error**
 ```
@@ -948,7 +1073,7 @@ Error: "Cannot complete booking" or "Token not found"
 Error: "Unauthorized" or "Invalid credentials"
 ```
 **Solutions:**
-- Verify admin account exists: `admin/backend/verify_login.php`
+- Verify the admin account exists in the `admins` table (see demo credentials above)
 - Check username and password are correct
 - Verify admin role/permissions in database
 - Check session timeout setting

@@ -425,3 +425,16 @@ footer {
         font-size: 12px;
     }
 }
+
+/* ===== SHARED VISIBILITY UTILITY =====
+   The HTML `hidden` attribute must always win, even against later, more
+   specific component rules such as page-level `.modal-overlay { display:flex }`.
+   This single shared rule fixes dialogs/toasts that could render on page load. */
+[hidden] {
+    display: none !important;
+}
+
+/* Lock background scrolling while a modal dialog is open */
+body.modal-open {
+    overflow: hidden;
+}

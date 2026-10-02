@@ -9,6 +9,32 @@
 
     <script>
         /**
+         * Mobile sidebar drawer
+         */
+        function toggleSidebar(force) {
+            const sidebar = document.getElementById('hospitalSidebar');
+            const backdrop = document.getElementById('sidebarBackdrop');
+            const toggle = document.querySelector('.sidebar-toggle');
+            if (!sidebar) return;
+
+            const open = (typeof force === 'boolean') ? force : !sidebar.classList.contains('open');
+            sidebar.classList.toggle('open', open);
+            if (backdrop) backdrop.classList.toggle('active', open);
+            if (toggle) toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+        }
+
+        // Close the drawer when a link inside it is used
+        document.querySelectorAll('#hospitalSidebar a').forEach(function (link) {
+            link.addEventListener('click', function () {
+                if (window.innerWidth <= 768) toggleSidebar(false);
+            });
+        });
+
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') toggleSidebar(false);
+        });
+
+        /**
          * Toggle User Profile Dropdown
          */
         function toggleProfileDropdown(event) {

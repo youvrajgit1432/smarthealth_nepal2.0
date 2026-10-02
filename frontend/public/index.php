@@ -8,6 +8,8 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+require_once __DIR__ . '/../../backend/helpers/CsrfHelper.php';
+
 // Set language if switching
 if (isset($_GET['lang'])) {
     $_SESSION['language'] = $_GET['lang'];
@@ -425,7 +427,7 @@ require_once __DIR__ . '/../views/layouts/header.php';
                                 <i class="fas fa-clock me-2" style="color: #3f51b5;"></i><strong>Hours:</strong> 9 AM - 5 PM Daily
                             </p>
                         </div>
-                        <a href="#" class="btn w-100" style="background: linear-gradient(90deg, #3f51b5, #1a237e); color: white; font-weight: 600; border: none;">
+                        <a href="/smarthealth_nepal/public/hospitals.php" class="btn w-100" style="background: linear-gradient(90deg, #3f51b5, #1a237e); color: white; font-weight: 600; border: none;">
                             <i class="fas fa-arrow-right me-2"></i>Learn More
                         </a>
                     </div>
@@ -453,7 +455,7 @@ require_once __DIR__ . '/../views/layouts/header.php';
                                 <i class="fas fa-clock me-2" style="color: #4caf50;"></i><strong>Hours:</strong> 9 AM - 5 PM Daily
                             </p>
                         </div>
-                        <a href="#" class="btn w-100" style="background: linear-gradient(90deg, #4caf50, #1b5e20); color: white; font-weight: 600; border: none;">
+                        <a href="/smarthealth_nepal/public/hospitals.php" class="btn w-100" style="background: linear-gradient(90deg, #4caf50, #1b5e20); color: white; font-weight: 600; border: none;">
                             <i class="fas fa-arrow-right me-2"></i>Learn More
                         </a>
                     </div>
@@ -481,7 +483,7 @@ require_once __DIR__ . '/../views/layouts/header.php';
                                 <i class="fas fa-clock me-2" style="color: #2196f3;"></i><strong>Hours:</strong> 9 AM - 5 PM Daily
                             </p>
                         </div>
-                        <a href="#" class="btn w-100" style="background: linear-gradient(90deg, #2196f3, #0d47a1); color: white; font-weight: 600; border: none;">
+                        <a href="/smarthealth_nepal/public/hospitals.php" class="btn w-100" style="background: linear-gradient(90deg, #2196f3, #0d47a1); color: white; font-weight: 600; border: none;">
                             <i class="fas fa-arrow-right me-2"></i>Learn More
                         </a>
                     </div>
@@ -509,7 +511,7 @@ require_once __DIR__ . '/../views/layouts/header.php';
                                 <i class="fas fa-clock me-2" style="color: #ff9800;"></i><strong>Hours:</strong> 9 AM - 5 PM Daily
                             </p>
                         </div>
-                        <a href="#" class="btn w-100" style="background: linear-gradient(90deg, #ff9800, #e65100); color: white; font-weight: 600; border: none;">
+                        <a href="/smarthealth_nepal/public/hospitals.php" class="btn w-100" style="background: linear-gradient(90deg, #ff9800, #e65100); color: white; font-weight: 600; border: none;">
                             <i class="fas fa-arrow-right me-2"></i>Learn More
                         </a>
                     </div>
@@ -732,7 +734,8 @@ require_once __DIR__ . '/../views/layouts/header.php';
             <!-- Right: Contact form -->
             <div class="col-lg-7">
                 <div style="background: rgba(255,255,255,0.95); padding:20px; border-radius:12px; box-shadow:0 8px 20px rgba(0,0,0,0.06);">
-                    <form action="#" method="post" novalidate>
+                    <form action="/smarthealth_nepal/frontend/views/home/contact.php" method="post" novalidate>
+                        <?php echo csrf_field(); ?>
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <label for="contactName" class="form-label"><?php echo $lang['contact_form_name'] ?? 'Your Name'; ?></label>
