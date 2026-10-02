@@ -3,33 +3,9 @@
  * Hospital Admin Dashboard
  */
 
-session_start();
-
-// Check authentication
-if (!isset($_SESSION['admin_id'])) {
-    header('Location: /smarthealth_nepal/admin/hospital/login.php');
-    exit;
-}
-
-// Set default session variables if missing
-if (!isset($_SESSION['access_type'])) {
-    $_SESSION['access_type'] = 'hospital';
-}
-if (!isset($_SESSION['hospital_id'])) {
-    $_SESSION['hospital_id'] = null;
-}
-if (!isset($_SESSION['admin_name'])) {
-    $_SESSION['admin_name'] = $_SESSION['admin_username'] ?? 'Admin';
-}
-
-// Hospital admin can only see their hospital
-$hospital_id = $_GET['hospital_id'] ?? $_SESSION['hospital_id'] ?? null;
-
-// For super admin, allow hospital selection
-$access_type = $_SESSION['access_type'] ?? 'hospital';
-if ($access_type !== 'super' && $hospital_id != $_SESSION['hospital_id']) {
-    die('Access denied');
-}
+// Central hospital-context resolution (auth + hospital/role rehydration).
+// Sets $hospital_id / $access_type and self-heals stale sessions.
+require_once __DIR__ . '/../includes/context.php';
 
 $error = '';
 $dashboard_data = [];
@@ -50,10 +26,10 @@ try {
     if (!$hospital_id) {
         if ($access_type === 'super') {
             // SuperAdmin can see all hospitals
-            $hospitalsQuery = "SELECT id, hospital_name FROM hospital_locations ORDER BY hospital_name";
+            $hospitalsQuery = "SELECT id, hospital_name FROM hospital_locations WHERE is_active = 1 ORDER BY hospital_name";
         } else {
             // Hospital admin can only see their assigned hospital
-            $hospitalsQuery = "SELECT id, hospital_name FROM hospital_locations WHERE id = " . (int)$_SESSION['hospital_id'];
+            $hospitalsQuery = "SELECT id, hospital_name FROM hospital_locations WHERE id = " . (int)$_SESSION['hospital_id'] . " AND is_active = 1";
         }
         $hospitalsResult = $db->query($hospitalsQuery);
         $available_hospitals = $hospitalsResult ? $hospitalsResult->fetch_all(MYSQLI_ASSOC) : [];
@@ -76,19 +52,20 @@ try {
         $tokensQuery = "SELECT 
                         COUNT(*) as total_tokens,
                         SUM(CASE WHEN status = 'Completed' THEN 1 ELSE 0 END) as completed,
-                        SUM(CASE WHEN status IN ('Active', 'Called') THEN 1 ELSE 0 END) as running,
-                        SUM(CASE WHEN status IN ('Active', 'Rescheduled') THEN 1 ELSE 0 END) as pending
+                        SUM(CASE WHEN status = 'Called' THEN 1 ELSE 0 END) as running,
+                        SUM(CASE WHEN status IN ('Active', 'Pending', 'Confirmed', 'Rescheduled') THEN 1 ELSE 0 END) as pending,
+                        SUM(CASE WHEN status = 'Missed' THEN 1 ELSE 0 END) as missed
                     FROM tokens 
                     WHERE hospital_id = " . (int)$hospital_id . " 
                     AND DATE(created_at) = CURDATE()";
         $tokensResult = $db->query($tokensQuery);
-        $tokens_data = $tokensResult ? $tokensResult->fetch_assoc() : ['total_tokens' => 0, 'completed' => 0, 'running' => 0, 'pending' => 0];
+        $tokens_data = $tokensResult ? $tokensResult->fetch_assoc() : ['total_tokens' => 0, 'completed' => 0, 'running' => 0, 'pending' => 0, 'missed' => 0];
 
         // Get department status - using hospital_departments junction table
         $departmentsQuery = "SELECT d.*, 
                            hd.hospital_id,
                            hd.max_tokens_per_day,
-                           hd.available as status,
+                           hd.available,
                            hd.is_active,
                            COUNT(t.id) as current_daily_tokens
                         FROM hospital_departments hd
@@ -152,13 +129,17 @@ require_once __DIR__ . '/../layouts/header.php';
                             <h3>Completed</h3>
                             <div class="number"><?php echo $dashboard_data['tokens_today']['completed'] ?? 0; ?></div>
                         </div>
-                        <div class="stat-card warning">
-                            <h3>Pending</h3>
+                        <div class="stat-card info">
+                            <h3>In Queue</h3>
                             <div class="number"><?php echo $dashboard_data['tokens_today']['pending'] ?? 0; ?></div>
                         </div>
-                        <div class="stat-card emergency">
-                            <h3>Running</h3>
+                        <div class="stat-card warning">
+                            <h3>Now Serving</h3>
                             <div class="number"><?php echo $dashboard_data['tokens_today']['running'] ?? 0; ?></div>
+                        </div>
+                        <div class="stat-card emergency">
+                            <h3>Missed</h3>
+                            <div class="number"><?php echo $dashboard_data['tokens_today']['missed'] ?? 0; ?></div>
                         </div>
                     </div>
 
@@ -218,7 +199,7 @@ require_once __DIR__ . '/../layouts/header.php';
                             <strong>Pending:</strong> <?php echo $dashboard_data['assisted_bookings']['pending'] ?? 0; ?> |
                             <strong>Assigned:</strong> <?php echo $dashboard_data['assisted_bookings']['assigned'] ?? 0; ?>
                         </p>
-                        <a href="/smarthealth_nepal/admin/hospital/assisted-bookings/" style="color: #667eea; text-decoration: none;">View All Assisted Bookings →</a>
+                        <a href="/smarthealth_nepal/admin/hospital/assisted-bookings/" style="color: #1565c0; text-decoration: none;">View All Assisted Bookings →</a>
                     </div>
 
                 <?php elseif (!empty($available_hospitals)): ?>
@@ -232,7 +213,7 @@ require_once __DIR__ . '/../layouts/header.php';
                                         <a href="/smarthealth_nepal/admin/hospital/dashboard/?hospital_id=<?php echo (int)$h['id']; ?>" style="text-decoration: none;">
                                             <div style="border: 1px solid #ddd; border-radius: 8px; padding: 15px; cursor: pointer; transition: all 0.3s; background: #f9f9f9;">
                                                 <h3 style="margin: 0 0 10px 0; color: #333;"><?php echo htmlspecialchars($h['hospital_name']); ?></h3>
-                                                <p style="margin: 0; color: #667eea; font-weight: 500;">Click to view dashboard →</p>
+                                                <p style="margin: 0; color: #1565c0; font-weight: 500;">Click to view dashboard →</p>
                                             </div>
                                         </a>
                                     <?php endforeach; ?>

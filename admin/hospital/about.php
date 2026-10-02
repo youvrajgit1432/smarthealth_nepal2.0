@@ -49,7 +49,7 @@ include 'layouts/header.php';
             </ul>
         </div>
 
-        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px; border-radius: 12px; color: white; text-align: center;">
+        <div style="background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%); padding: 40px; border-radius: 12px; color: white; text-align: center;">
             <div style="font-size: 48px; font-weight: 700; margin-bottom: 20px;">100+</div>
             <div style="font-size: 18px; margin-bottom: 30px;">Hospitals Across Nepal</div>
             <hr style="opacity: 0.3; margin: 20px 0;">
@@ -63,7 +63,7 @@ include 'layouts/header.php';
 <div class="section">
     <h2>Key Features</h2>
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-top: 20px;">
-        <div style="background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%); padding: 25px; border-radius: 8px; border-left: 4px solid #667eea;">
+        <div style="background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%); padding: 25px; border-radius: 8px; border-left: 4px solid #1565c0;">
             <h4 style="color: #2c3e50; margin-bottom: 10px;">🎫 Token Management</h4>
             <p style="color: #8fa8ba; font-size: 13px;">Generate, track, and manage patient tokens efficiently</p>
         </div>
@@ -111,7 +111,7 @@ include 'layouts/header.php';
 
         <div style="background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%); padding: 20px; border-radius: 6px;">
             <label style="font-size: 12px; color: #8fa8ba; font-weight: 600; text-transform: uppercase;">Support</label>
-            <div style="font-size: 14px; color: #2c3e50; font-weight: 600; margin-top: 5px;"><a href="mailto:support@smarthealth.com" style="color: #667eea;">support@smarthealth.com</a></div>
+            <div style="font-size: 14px; color: #2c3e50; font-weight: 600; margin-top: 5px;"><a href="mailto:support@smarthealth.com" style="color: #1565c0;">support@smarthealth.com</a></div>
         </div>
     </div>
 </div>
@@ -122,7 +122,7 @@ include 'layouts/header.php';
     <p style="color: #8fa8ba; margin-bottom: 25px;">Dedicated professionals committed to improving healthcare delivery in Nepal</p>
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px;">
         <div style="text-align: center; background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%); padding: 25px; border-radius: 8px;">
-            <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; color: white; font-size: 36px; font-weight: 700;">RC</div>
+            <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%); border-radius: 50%; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; color: white; font-size: 36px; font-weight: 700;">RC</div>
             <h4 style="color: #2c3e50; margin-bottom: 5px;">Rajesh Chaudhary</h4>
             <p style="color: #8fa8ba; font-size: 12px;">Founder & CEO</p>
         </div>
@@ -142,7 +142,7 @@ include 'layouts/header.php';
 </div>
 
 <!-- Contact -->
-<div class="section" style="text-align: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+<div class="section" style="text-align: center; background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%); color: white;">
     <h2 style="color: white; margin-bottom: 20px;">Get In Touch</h2>
     <p style="font-size: 16px; margin-bottom: 25px; opacity: 0.9;">Have questions or feedback? We'd love to hear from you!</p>
     <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">

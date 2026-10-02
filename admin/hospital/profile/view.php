@@ -24,7 +24,7 @@ include '../layouts/header.php';
     <div style="display: grid; grid-template-columns: 200px 1fr; gap: 30px; margin-top: 30px;">
         <!-- Profile Picture -->
         <div style="text-align: center;">
-            <div style="width: 150px; height: 150px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 60px; font-weight: 700; margin: 0 auto; margin-bottom: 15px;">
+            <div style="width: 150px; height: 150px; background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 60px; font-weight: 700; margin: 0 auto; margin-bottom: 15px;">
                 <?php echo strtoupper(substr($_SESSION['admin_name'] ?? 'A', 0, 1)); ?>
             </div>
             <button class="btn btn-primary btn-small">Upload Photo</button>
@@ -96,7 +96,7 @@ include '../layouts/header.php';
 <div class="section">
     <h2>Hospital Information</h2>
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 20px;">
-        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 25px; border-radius: 8px;">
+        <div style="background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%); color: white; padding: 25px; border-radius: 8px;">
             <h4 style="color: white; margin-bottom: 15px;">🏥 Hospital Details</h4>
             <div style="display: flex; flex-direction: column; gap: 12px;">
                 <div>
@@ -156,7 +156,7 @@ include '../layouts/header.php';
 <div class="section">
     <h3>Additional Information</h3>
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-top: 20px;">
-        <div style="background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%); padding: 16px; border-radius: 6px; border-left: 4px solid #667eea;">
+        <div style="background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%); padding: 16px; border-radius: 6px; border-left: 4px solid #1565c0;">
             <h4 style="color: #2c3e50; margin-bottom: 8px;">Permissions</h4>
             <p style="font-size: 13px; color: #8fa8ba;">Full hospital management access including tokens, staff, and reports</p>
         </div>

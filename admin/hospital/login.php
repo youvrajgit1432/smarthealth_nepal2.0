@@ -16,7 +16,8 @@ if (isset($_SESSION['admin_id'])) {
     exit;
 }
 
-$error = '';
+// Surface context-resolution messages (e.g. invalidated stale sessions)
+$error = $_GET['error'] ?? '';
 $success = '';
 
 // Handle login form submission
@@ -93,14 +94,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hospital Admin Login - SmartHealth Nepal</title>
-    <link rel="stylesheet" href="../../frontend/css/admin.css">
+    <link rel="stylesheet" href="/smarthealth_nepal/admin/frontend/css/admin.css">
     <style>
         .login-container {
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%);
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
         }
         
@@ -155,14 +156,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         .form-group input:focus {
             outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            border-color: #1565c0;
+            box-shadow: 0 0 0 3px rgba(21, 101, 192, 0.1);
         }
 
         .login-btn {
             width: 100%;
             padding: 12px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%);
             color: white;
             border: none;
             border-radius: 5px;
@@ -208,7 +209,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         .login-footer a {
-            color: #667eea;
+            color: #1565c0;
             text-decoration: none;
         }
 
@@ -282,13 +283,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </form>
 
             <div class="demo-credentials">
-                <strong>Demo Credentials:</strong>
-                <p><strong>Hospital Admin:</strong></p>
-                <p>Username: bir_admin</p>
-                <p>Password: password (or set by superadmin)</p>
-                <p style="margin-top: 10px;"><strong>Super Admin:</strong></p>
-                <p>Username: superadmin</p>
-                <p>Password: password</p>
+                <strong>Demo Credentials (local only):</strong>
+                <p><strong>Hospital Admin (Bir Hospital):</strong></p>
+                <p>Username: bir_admin &nbsp;|&nbsp; Password: hospital123</p>
+                <p><strong>Hospital Admin (Patan Hospital):</strong></p>
+                <p>Username: patan_admin &nbsp;|&nbsp; Password: hospital123</p>
+                <p style="margin-top: 10px; color: #b02a37;">Replace these accounts before any production deployment.</p>
             </div>
 
             <div class="login-footer">

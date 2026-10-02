@@ -23,7 +23,7 @@ include '../layouts/header.php';
     <h2>Change Password</h2>
     
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px;">
-        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 6px;">
+        <div style="background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%); color: white; padding: 20px; border-radius: 6px;">
             <label style="font-size: 11px; opacity: 0.8; text-transform: uppercase; letter-spacing: 0.5px;">Hospital</label>
             <div style="font-size: 16px; font-weight: 600; margin-top: 8px;">Bhaktapur Hospital</div>
             <div style="font-size: 12px; opacity: 0.9; margin-top: 5px;">HOS-2025-0001</div>

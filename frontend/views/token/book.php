@@ -159,13 +159,13 @@ else if ($_SERVER['REQUEST_METHOD'] === 'POST' && $currentStep === 'otp_verifica
                 $_SESSION['is_logged_in'] = true;
                 $_SESSION['login_time'] = time();
                 
-                error_log("User auto-logged in: " . $verifyResult['user_name'] . " | Phone: " . $phoneNumber);
+                error_log("User auto-logged in after OTP verification");
             } elseif (!$isLoggedIn && !$verifyResult['user_id']) {
                 // New user - will create during booking
                 $_SESSION['user_phone'] = $phoneNumber;
                 $_SESSION['new_user'] = true;
                 
-                error_log("New user registration initiated | Phone: " . $phoneNumber);
+                error_log("New user registration initiated after OTP verification");
             }
             
             // Move to booking details step
@@ -1206,8 +1206,13 @@ function fetchAndDisplayHospitals(apiUrl, hospitalContainer, hospitalOptions) {
  */
 function showHospitalDetails() {
     const hospitalSelect = document.getElementById('hospital_id');
-    if (hospitalSelect) {
-        alert('Hospital details feature coming soon!');
+    const id = hospitalSelect ? hospitalSelect.value : '';
+    if (id) {
+        // Open the hospital's full public detail page in a new tab.
+        window.open('/smarthealth_nepal/public/hospital-detail.php?id=' + encodeURIComponent(id), '_blank');
+    } else {
+        // No hospital selected yet — send the patient to the hospital directory.
+        window.open('/smarthealth_nepal/public/hospitals.php', '_blank');
     }
 }
 

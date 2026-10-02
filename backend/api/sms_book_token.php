@@ -2,9 +2,9 @@
 // SMS-based token booking for offline users
 session_start();
 
-require_once '../config/database.php';
-require_once '../helpers/TokenHelper.php';
-require_once '../helpers/SMSHelper.php';
+require_once __DIR__ . '/../init.php'; // provides global generateTokenNumber()
+require_once __DIR__ . '/../helpers/TokenHelper.php';
+require_once __DIR__ . '/../helpers/SMSHelper.php';
 
 header('Content-Type: application/json');
 
@@ -81,8 +81,8 @@ if (!$parsed) {
     exit;
 }
 
-// Generate token number
-$token_number = TokenHelper::generateTokenNumber();
+// Generate token number (department + date based serial)
+$token_number = generateTokenNumber($department_id);
 
 // Check if user already has token today for this department
 $sql_check = "SELECT id FROM tokens WHERE user_id = ? AND department_id = ? AND DATE(created_at) = CURDATE() AND status != 'Cancelled'";
@@ -120,13 +120,13 @@ $stmt_otp->bind_param('si', $otp, $token_id);
 $stmt_otp->execute();
 
 // Get department details
-$sql_dept = "SELECT name FROM departments WHERE id = ?";
+$sql_dept = "SELECT name_en FROM departments WHERE id = ?";
 $stmt_dept = $conn->prepare($sql_dept);
 $stmt_dept->bind_param('i', $department_id);
 $stmt_dept->execute();
 $dept_result = $stmt_dept->get_result();
 $dept = $dept_result->fetch_assoc();
-$dept_name = $dept['name'] ?? 'General';
+$dept_name = $dept['name_en'] ?? 'General';
 
 // Log SMS booking attempt
 SMSHelper::logSMS($phone, 'BOOKING_INITIATED', "Booking Type: {$booking_type}, OTP: {$otp}", 'OUTGOING');

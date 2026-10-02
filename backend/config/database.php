@@ -31,8 +31,11 @@ if ($connection->connect_error) {
 // Set charset to UTF-8 for Nepali language support
 $connection->set_charset("utf8mb4");
 
-// Global database connection variable
-global $db;
+// Global database connection variables
+// Different parts of the project refer to the connection as $db or $conn,
+// so both aliases are exposed here to keep every code path consistent.
+global $db, $conn;
 $db = $connection;
+$conn = $connection;
 
 ?>

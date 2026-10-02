@@ -20,7 +20,7 @@ include '../layouts/header.php';
 ?>
 
 <!-- Hospital Info Display -->
-<div class="section" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; margin-bottom: 25px;">
+<div class="section" style="background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%); color: white; margin-bottom: 25px;">
     <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 30px;">
         <div>
             <label style="font-size: 12px; opacity: 0.8; text-transform: uppercase; letter-spacing: 0.5px;">Hospital Name</label>
@@ -123,7 +123,7 @@ include '../layouts/header.php';
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 20px;">
         <div>
             <label style="font-weight: 600; color: #2c3e50; font-size: 13px; text-transform: uppercase;">Assigned Hospital</label>
-            <div style="margin-top: 10px; padding: 16px; background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%); border-radius: 6px; border-left: 4px solid #667eea;">
+            <div style="margin-top: 10px; padding: 16px; background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%); border-radius: 6px; border-left: 4px solid #1565c0;">
                 <div style="font-size: 16px; font-weight: 600; color: #2c3e50;">Bhaktapur Hospital</div>
                 <div style="font-size: 12px; color: #8fa8ba; margin-top: 5px;">ID: HOS-2025-0001</div>
                 <div style="font-size: 12px; color: #8fa8ba; margin-top: 3px;">Location: Bhaktapur, Kathmandu Valley</div>
