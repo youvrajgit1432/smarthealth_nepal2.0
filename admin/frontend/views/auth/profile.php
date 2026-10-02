@@ -57,7 +57,7 @@ require_once __DIR__ . '/../layouts/sidebar.php';
             <div class="card shadow-sm">
                 <div class="card-body text-center">
                     <div class="mb-3">
-                        <div class="profile-avatar" style="width: 100px; height: 100px; margin: 0 auto; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                        <div class="profile-avatar" style="width: 100px; height: 100px; margin: 0 auto; background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
                             <span style="font-size: 48px; color: white;">
                                 <?php echo strtoupper(substr($admin['full_name'][0], 0, 1)); ?>
                             </span>

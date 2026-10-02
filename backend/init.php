@@ -4,10 +4,11 @@
  * Load all required configurations and utilities
  */
 
-// Enable error reporting for development (disable in production)
-error_reporting(E_ALL);
-ini_set('display_errors', 0);
-ini_set('log_errors', 1);
+// Load application configuration (APP_ENV / DEBUG_MODE + error display)
+require_once __DIR__ . '/config/app.php';
+
+// Load SMS configuration (defaults to local 'debug' provider)
+require_once __DIR__ . '/config/sms.php';
 
 // Start session
 if (session_status() == PHP_SESSION_NONE) {
@@ -51,14 +52,23 @@ if (!isset($db) || $db->connect_error) {
  */
 function generateTokenNumber($departmentId) {
     global $db;
-    $date = date('Ymd');
-    
-    $result = $db->query("SELECT MAX(token_number) as max_token FROM tokens 
-                         WHERE department_id = $departmentId 
-                         AND DATE(created_at) = '$date'");
-    $row = $result->fetch_assoc();
-    
-    return ($row['max_token'] ?? 0) + 1;
+    $departmentId = (int) $departmentId;
+    if ($departmentId <= 0) {
+        return 1;
+    }
+
+    $stmt = $db->prepare("SELECT MAX(CAST(token_number AS UNSIGNED)) AS max_token
+                           FROM tokens
+                          WHERE department_id = ? AND DATE(created_at) = CURDATE()");
+    if (!$stmt) {
+        return 1;
+    }
+    $stmt->bind_param('i', $departmentId);
+    $stmt->execute();
+    $row = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+
+    return (int) ($row['max_token'] ?? 0) + 1;
 }
 
 /**
@@ -66,20 +76,28 @@ function generateTokenNumber($departmentId) {
  */
 function calculateWaitTime($departmentId) {
     global $db;
-    
-    $result = $db->query("SELECT 
-                         COUNT(*) as queue_count,
-                         d.avg_service_time
-                         FROM tokens t
-                         JOIN departments d ON t.department_id = d.id
-                         WHERE t.department_id = $departmentId 
-                         AND t.status = 'Active'
-                         AND DATE(t.created_at) = CURDATE()");
-    
-    $row = $result->fetch_assoc();
-    $queueCount = $row['queue_count'] ?? 0;
-    $avgServiceTime = $row['avg_service_time'] ?? 30;
-    
+    $departmentId = (int) $departmentId;
+    if ($departmentId <= 0) {
+        return 0;
+    }
+
+    $stmt = $db->prepare("SELECT COUNT(*) AS queue_count, d.avg_service_time
+                            FROM tokens t
+                            JOIN departments d ON t.department_id = d.id
+                           WHERE t.department_id = ?
+                             AND t.status IN ('Active', 'Pending', 'Confirmed', 'Rescheduled')
+                             AND DATE(t.created_at) = CURDATE()");
+    if (!$stmt) {
+        return 0;
+    }
+    $stmt->bind_param('i', $departmentId);
+    $stmt->execute();
+    $row = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+
+    $queueCount = (int) ($row['queue_count'] ?? 0);
+    $avgServiceTime = (int) ($row['avg_service_time'] ?? 30);
+
     return $queueCount * $avgServiceTime;
 }
 

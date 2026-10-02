@@ -37,7 +37,7 @@ $admin_hospital_id = $_SESSION['hospital_id'] ?? null;
 
 // Verify service exists and belongs to admin's hospital
 $sql_check = "SELECT s.id, s.service_name FROM services s 
-              LEFT JOIN departments d ON s.department_id = d.id
+              LEFT JOIN departments d ON s.dept_id = d.id
               WHERE s.id = ?";
 
 if (!$is_superadmin && $admin_hospital_id) {

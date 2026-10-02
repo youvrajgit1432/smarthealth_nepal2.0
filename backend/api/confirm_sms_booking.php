@@ -25,7 +25,7 @@ if (!$token_id || !$otp) {
 }
 
 // Verify token and OTP
-$sql = "SELECT t.id, t.token_number, t.status, t.otp, t.department_id, d.name as dept_name, u.phone, u.language
+$sql = "SELECT t.id, t.token_number, t.status, t.otp, t.department_id, d.name_en as dept_name, u.phone, u.language
         FROM tokens t
         LEFT JOIN departments d ON t.department_id = d.id
         LEFT JOIN users u ON t.user_id = u.id

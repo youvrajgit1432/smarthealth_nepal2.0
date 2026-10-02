@@ -29,8 +29,8 @@ if (!$is_superadmin && $hospital_id) {
 }
 
 // Get services
-$sql = "SELECT s.*, d.name_en as dept_name FROM services s 
-        LEFT JOIN departments d ON s.department_id = d.id 
+$sql = "SELECT s.*, d.name_en as dept_name FROM services s
+        LEFT JOIN departments d ON s.dept_id = d.id
         WHERE s.is_active = 1" . $hospital_filter . "
         ORDER BY s.created_at DESC";
 
@@ -51,22 +51,22 @@ require_once __DIR__ . '/../layouts/sidebar.php';
 
 <div class="container-fluid">
     <h2 class="mb-4"><?php echo $lang['approve_services'] ?? 'Service Management'; ?></h2>
-    
+
     <div class="card shadow-sm">
         <div class="card-header bg-primary text-white">
             <h5 class="card-title mb-0">
                 <i class="fas fa-check-circle"></i> <?php echo $lang['active_services'] ?? 'Active Services'; ?>
             </h5>
         </div>
-        
+
         <div class="card-body">
             <?php if (empty($services)): ?>
             <div class="alert alert-info">
-                <i class="fas fa-info-circle"></i> 
+                <i class="fas fa-info-circle"></i>
                 <?php echo $lang['no_services'] ?? 'No services available'; ?>
             </div>
             <?php else: ?>
-            
+
             <div class="table-responsive">
                 <table class="table table-hover">
                     <thead class="table-light">

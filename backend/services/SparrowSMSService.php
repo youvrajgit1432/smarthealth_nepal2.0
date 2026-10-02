@@ -141,9 +141,8 @@ class SparrowSMSService {
             // Build the complete URL
             $url = $this->baseUrl . 'sms/?' . http_build_query($params);
             
-            // Log the API call for debugging
-            error_log("Sparrow SMS API Call: " . $url);
-            error_log("Sparrow SMS Params - Phone: $phoneNumber, Sender: " . $this->senderId . ", Token Length: " . strlen($this->apiToken));
+            // Log the API call metadata only — never the URL/token or phone number.
+            error_log("Sparrow SMS API call dispatched (sender: " . $this->senderId . ")");
             
             // Use GET request
             $response = $this->makeGetRequest($url);

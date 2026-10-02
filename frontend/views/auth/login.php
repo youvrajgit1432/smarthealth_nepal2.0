@@ -131,8 +131,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $step === 'mpin' && $mode === 'logi
             $_SESSION['login_time'] = time();
             $_SESSION['phone_number'] = $user['phone_number'];
             
-            error_log("User logged in via MPIN: " . $user['full_name'] . " | Phone: " . $phone);
-            
             // Redirect to home or token booking
             header('Location: /smarthealth_nepal/frontend/views/home/');
             exit;

@@ -3,11 +3,9 @@
  * Admin Backend Initialization
  */
 
-// Enable error reporting
-error_reporting(E_ALL);
-ini_set('display_errors', 0);
-ini_set('display_startup_errors', 0);
-ini_set('log_errors', 1);
+// Load application configuration (APP_ENV / DEBUG_MODE + error display)
+require_once __DIR__ . '/../../backend/config/app.php';
+require_once __DIR__ . '/../../backend/config/sms.php';
 
 // Start session
 if (session_status() == PHP_SESSION_NONE) {
@@ -51,7 +49,7 @@ function isAdminLoggedIn() {
 
 function requireAdminLogin() {
     if (!isAdminLoggedIn()) {
-        header('Location: /smarthealth_nepal/admin/frontend/views/login.php');
+        header('Location: /smarthealth_nepal/admin/frontend/views/auth/login.php');
         exit;
     }
 }

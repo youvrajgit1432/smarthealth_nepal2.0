@@ -26,6 +26,10 @@ if (file_exists($lang_file)) {
 // Get token status
 $status = $tokenController->getTokenStatus($userId);
 
+// May be null when the user has no active/pending token. Initialised here so
+// the live-update script below can safely reference it in every code path.
+$token = $status['token'] ?? null;
+
 $pageTitle = $lang['track_your_status'] ?? 'Track Token Status';
 $activePage = 'status';
 
@@ -241,11 +245,16 @@ function formatWaitTime(minutes) {
 function updateTokenStatus() {
     const tokenData = {
         userId: <?php echo $userId; ?>,
-        departmentId: <?php echo $token['department_id']; ?>
+        departmentId: <?php echo $token['department_id'] ?? 'null'; ?>
     };
+
+    // Nothing to track when the user has no active token.
+    if (!tokenData.departmentId) {
+        return;
+    }
     
     // Fetch updated data via AJAX
-    fetch('/smarthealth_nepal/backend/api/get_token_status.php?token=<?php echo $token['token_number']; ?>', {
+    fetch('/smarthealth_nepal/backend/api/get_token_status.php?token=<?php echo $token['token_number'] ?? ''; ?>', {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json'

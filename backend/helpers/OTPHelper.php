@@ -40,7 +40,7 @@ class OTPHelper {
                 $otp = $existingSession['otp_code'];
                 $mpin = $existingSession['mpin'];
                 
-                error_log("Reusing existing OTP for phone: $phoneNumber | OTP: $otp | MPIN: $mpin");
+                error_log("Reusing existing OTP session for phone: $phoneNumber");
                 
                 // Resend the existing OTP via SMS
                 $smsSent = false;
@@ -129,7 +129,7 @@ class OTPHelper {
                 }
             }
             
-            error_log("New OTP generated for phone: $phoneNumber | OTP: $otp | MPIN: $mpin");
+            error_log("New OTP generated for phone: $phoneNumber");
             
             return [
                 'success' => $smsSent,
@@ -208,7 +208,7 @@ class OTPHelper {
             $this->db->query("UPDATE otp_sessions SET is_verified = 1, status = 'Verified', verified_at = NOW() WHERE id = $sessionId");
             
             // CHECK IF USER EXISTS
-            $userQuery = "SELECT id, phone_number, first_name, last_name, mpin FROM users WHERE phone_number = '$phoneNumber' LIMIT 1";
+            $userQuery = "SELECT id, phone_number, full_name, mpin FROM users WHERE phone_number = '$phoneNumber' LIMIT 1";
             $userResult = $this->db->query($userQuery);
             
             $userId = null;
@@ -219,14 +219,14 @@ class OTPHelper {
                 // User exists - this is a login
                 $userData = $userResult->fetch_assoc();
                 $userId = $userData['id'];
-                $userName = $userData['first_name'] . ' ' . $userData['last_name'];
+                $userName = $userData['full_name'] ?? $phoneNumber;
                 $userExists = true;
                 
                 error_log("OTP Verified for existing user: $userName | Phone: $phoneNumber");
             } else {
                 // New user - will be created during booking with the MPIN
                 $userName = "Guest User";
-                error_log("OTP Verified for new user | Phone: $phoneNumber | Will be created with MPIN: " . $session['mpin']);
+                error_log("OTP verified for new user | Phone: $phoneNumber");
             }
             
             return [
@@ -298,7 +298,7 @@ class OTPHelper {
                 }
             }
             
-            error_log("MPIN Updated for user $userId | Old: $oldMpin | New: $newMpin");
+            error_log("MPIN updated for user $userId");
             
             return [
                 'success' => true,

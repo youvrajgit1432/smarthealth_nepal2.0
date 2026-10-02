@@ -5,6 +5,7 @@
  */
 
 require_once __DIR__ . '/../../../backend/init.php';
+require_once __DIR__ . '/../../../../backend/helpers/CsrfHelper.php';
 require_once __DIR__ . '/../../../backend/controllers/ServiceController.php';
 
 // Check admin login
@@ -96,6 +97,7 @@ $pageTitle = $lang['forward_referral'] ?? 'Forward Referral';
             </div>
             <form method="POST" action="/smarthealth_nepal/admin/api/forward_referral.php">
                 <div class="modal-body">
+                    <?php echo csrf_field(); ?>
                     <input type="hidden" name="referral_id" id="forwardRef">
                     
                     <div class="mb-3">

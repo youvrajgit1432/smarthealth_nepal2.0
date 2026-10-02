@@ -4,6 +4,17 @@
  */
 
 require_once __DIR__ . '/../backend/config/database.php';
+require_once __DIR__ . '/../backend/config/app.php';
+
+// SECURITY: this panel exposes live OTP codes, so it must never be public.
+// It is only available in development mode and only to a signed-in admin.
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+if (!(defined('DEBUG_MODE') && DEBUG_MODE) || empty($_SESSION['admin_id'])) {
+    http_response_code(403);
+    exit('The OTP debug panel is only available to signed-in administrators in development mode.');
+}
 
 $title = 'OTP Debug Panel';
 ?>

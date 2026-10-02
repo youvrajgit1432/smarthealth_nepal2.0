@@ -31,11 +31,23 @@ if (empty($phoneNumber) || empty($departmentId) || empty($otpSessionId)) {
     exit;
 }
 
+// Build appointment data as an array (the controller expects an associative array)
+$appointmentData = $input['appointment_data'] ?? $_POST['appointment_data'] ?? [];
+if (!is_array($appointmentData)) {
+    $appointmentData = [];
+}
+if (!empty($bookingDate)) {
+    $appointmentData['appointment_date'] = $bookingDate;
+}
+if (!empty($windowId)) {
+    $appointmentData['appointment_slot_id'] = $windowId;
+}
+
 try {
     // Initialize controller
     $tokenController = new TokenController($db);
     
-    // Complete booking with time window support
+    // Complete booking with appointment (time window) support
     $result = $tokenController->completeBookingAfterOTPVerification(
         $phoneNumber,
         $departmentId,
@@ -43,8 +55,7 @@ try {
         $otpSessionId,
         $hospitalId,
         $locationData,
-        $bookingDate,
-        $windowId
+        $appointmentData
     );
     
     header('Content-Type: application/json');

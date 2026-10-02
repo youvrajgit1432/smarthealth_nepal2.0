@@ -5,6 +5,7 @@
  */
 
 require_once __DIR__ . '/../../../backend/init.php';
+require_once __DIR__ . '/../../../../backend/helpers/CsrfHelper.php';
 require_once __DIR__ . '/../../../backend/controllers/ServiceController.php';
 
 // Check admin login
@@ -76,6 +77,7 @@ $pageTitle = $lang['referral_management'] ?? 'Referral Management';
                                         <div class="btn-group btn-group-sm">
                                             <form method="POST" action="/smarthealth_nepal/admin/api/approve_referral.php" 
                                                   style="display:inline;">
+                                                <?php echo csrf_field(); ?>
                                                 <input type="hidden" name="referral_id" value="<?php echo $referral['id']; ?>">
                                                 <button type="submit" class="btn btn-success btn-sm">
                                                     <i class="fas fa-check"></i> Approve
@@ -84,6 +86,7 @@ $pageTitle = $lang['referral_management'] ?? 'Referral Management';
                                             
                                             <form method="POST" action="/smarthealth_nepal/admin/api/reject_referral.php" 
                                                   style="display:inline;">
+                                                <?php echo csrf_field(); ?>
                                                 <input type="hidden" name="referral_id" value="<?php echo $referral['id']; ?>">
                                                 <button type="submit" class="btn btn-danger btn-sm" 
                                                         onclick="return confirm('Reject this referral?')">

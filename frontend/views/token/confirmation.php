@@ -75,7 +75,7 @@ require_once __DIR__ . '/../layouts/header.php';
                 <div class="row mb-4">
                     <div class="col-md-6">
                         <h6 class="text-muted"><?php echo $lang['department'] ?? 'Department'; ?></h6>
-                        <p class="h5"><?php echo $dept['name']; ?></p>
+                        <p class="h5"><?php echo htmlspecialchars($dept['name_en'] ?? $dept['name'] ?? ''); ?></p>
                     </div>
                     <div class="col-md-6">
                         <h6 class="text-muted"><?php echo $lang['priority_level'] ?? 'Priority'; ?></h6>

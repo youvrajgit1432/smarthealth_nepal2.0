@@ -243,7 +243,6 @@ try {
     
 } catch (Exception $e) {
     error_log("Hospital API Error: " . $e->getMessage());
-    error_log("Stack trace: " . $e->getTraceAsString());
     $response['message'] = 'API Error: ' . $e->getMessage();
 }
 

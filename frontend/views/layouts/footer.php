@@ -233,9 +233,9 @@
                 <div class="col-md-4">
                     <h5><?php echo isset($lang['about']) ? $lang['about'] : 'About'; ?></h5>
                     <ul class="list-unstyled">
-                        <li><a href="#" class="text-decoration-none text-light">About Us</a></li>
-                        <li><a href="#" class="text-decoration-none text-light"><?php echo isset($lang['contact']) ? $lang['contact'] : 'Contact'; ?></a></li>
-                        <li><a href="#" class="text-decoration-none text-light"><?php echo isset($lang['services']) ? $lang['services'] : 'Services'; ?></a></li>
+                        <li><a href="/smarthealth_nepal/frontend/views/home/about.php" class="text-decoration-none text-light">About Us</a></li>
+                        <li><a href="/smarthealth_nepal/frontend/views/home/contact.php" class="text-decoration-none text-light"><?php echo isset($lang['contact']) ? $lang['contact'] : 'Contact'; ?></a></li>
+                        <li><a href="/smarthealth_nepal/frontend/views/services/" class="text-decoration-none text-light"><?php echo isset($lang['services']) ? $lang['services'] : 'Services'; ?></a></li>
                     </ul>
                 </div>
                 <div class="col-md-4">
@@ -251,8 +251,8 @@
             <div class="text-center">
                 <p>&copy; 2024 SmartHealth Nepal. All rights reserved.</p>
                 <p>
-                    <a href="#" class="text-decoration-none text-light"><?php echo isset($lang['privacy_policy']) ? $lang['privacy_policy'] : 'Privacy Policy'; ?></a> |
-                    <a href="#" class="text-decoration-none text-light"><?php echo isset($lang['terms_conditions']) ? $lang['terms_conditions'] : 'Terms & Conditions'; ?></a>
+                    <a href="/smarthealth_nepal/frontend/views/home/privacy.php" class="text-decoration-none text-light"><?php echo isset($lang['privacy_policy']) ? $lang['privacy_policy'] : 'Privacy Policy'; ?></a> |
+                    <a href="/smarthealth_nepal/frontend/views/home/terms.php" class="text-decoration-none text-light"><?php echo isset($lang['terms_conditions']) ? $lang['terms_conditions'] : 'Terms & Conditions'; ?></a>
                 </p>
             </div>
         </div>
@@ -260,10 +260,6 @@
     
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Custom JS -->
-    <script src="/smarthealth_nepal/frontend/public/assets/js/main.js"></script>
-    <!-- SmartHealth 2.0 JS -->
-    <script src="/smarthealth_nepal/frontend/public/assets/js/smarthealth-2.0.js"></script>
     
     <script>
         // Language switcher
