@@ -1,0 +1,28 @@
+# ---------------------------------------------------------------------------
+# SmartHealth Nepal - Git ignore rules
+# ---------------------------------------------------------------------------
+
+# OS / editor / IDE files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.idea/
+.vscode/
+*.sublime-workspace
+
+# Local environment overrides (never commit real credentials)
+.env
+.env.*
+*.local.php
+
+# Runtime logs (regenerated while the app runs)
+logs/*.log
+!logs/.gitkeep
+
+# Tooling / agent state
+.freebuff/
+
+# Temporary files
+*.tmp
+*.bak

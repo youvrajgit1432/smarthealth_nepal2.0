@@ -3,28 +3,12 @@
  * Hospital Reports
  */
 
-session_start();
-
-// Check authentication
-if (!isset($_SESSION['admin_id'])) {
-    header('Location: /smarthealth_nepal/admin/hospital/login.php');
-    exit;
-}
+// Central hospital-context resolution (auth + hospital/role rehydration).
+require_once __DIR__ . '/../includes/context.php';
 
 // Set page variables
 $pageTitle = 'Hospital Reports';
 $activePage = 'reports';
-
-// Set default session variables if missing
-if (!isset($_SESSION['access_type'])) {
-    $_SESSION['access_type'] = 'hospital';
-}
-if (!isset($_SESSION['hospital_id'])) {
-    $_SESSION['hospital_id'] = null;
-}
-if (!isset($_SESSION['admin_name'])) {
-    $_SESSION['admin_name'] = $_SESSION['admin_username'] ?? 'Admin';
-}
 
 // Include header
 include '../layouts/header.php';

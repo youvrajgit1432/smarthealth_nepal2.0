@@ -3,17 +3,15 @@
  * Hospital Staff Management
  */
 
-session_start();
+// Central hospital-context resolution (auth + hospital/role rehydration).
+require_once __DIR__ . '/../includes/context.php';
+require_once __DIR__ . '/../../../backend/helpers/CsrfHelper.php';
 
-if (!isset($_SESSION['admin_id'])) {
-    header('Location: /smarthealth_nepal/admin/hospital/login.php');
-    exit;
-}
-
-$hospital_id = $_GET['hospital_id'] ?? $_SESSION['hospital_id'] ?? null;
 $error = '';
 $success = '';
 $staff = [];
+$dept_options = [];
+$editing = null;
 $pageTitle = 'Staff Management';
 $activePage = 'staff';
 
@@ -27,6 +25,9 @@ try {
 
     // Handle form submission
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
+        if (!csrf_verify()) {
+            throw new Exception('Your session expired. Please refresh the page and try again.');
+        }
         if ($_POST['action'] === 'add_staff') {
             $query = "INSERT INTO hospital_staff 
                      (hospital_id, name, position, department_id, email, phone, admin_id, status, is_active)
@@ -37,19 +38,26 @@ try {
                 throw new Exception('Database error: ' . $db->error);
             }
             
-            $status = $_POST['status'] ?? 'Active';
-            $dept_id = $_POST['department_id'] ?? null;
-            $email = $_POST['email'] ?? null;
-            $phone = $_POST['phone'] ?? null;
-            
-            $stmt->bind_param('issiiisss', 
-                $hospital_id, 
-                $_POST['name'], 
-                $_POST['position'], 
+            $name     = trim($_POST['name'] ?? '');
+            $position = trim($_POST['position'] ?? '');
+            $status   = in_array($_POST['status'] ?? '', ['Active', 'Inactive', 'Leave'], true) ? $_POST['status'] : 'Active';
+            $dept_id  = ($_POST['department_id'] ?? '') !== '' ? (int) $_POST['department_id'] : null;
+            $email    = trim($_POST['email'] ?? '') !== '' ? trim($_POST['email']) : null;
+            $phone    = trim($_POST['phone'] ?? '') !== '' ? trim($_POST['phone']) : null;
+            if ($name === '' || $position === '') {
+                throw new Exception('Staff name and position are required.');
+            }
+            $admin_id = (int) $_SESSION['admin_id'];
+
+            $stmt->bind_param(
+                'ississis',
+                $hospital_id,
+                $name,
+                $position,
                 $dept_id,
                 $email,
                 $phone,
-                $_SESSION['admin_id'],
+                $admin_id,
                 $status
             );
             $stmt->execute();
@@ -69,18 +77,25 @@ try {
                 throw new Exception('Database error: ' . $db->error);
             }
             
-            $dept_id = $_POST['department_id'] ?? null;
-            $email = $_POST['email'] ?? null;
-            $phone = $_POST['phone'] ?? null;
-            $staff_id = $_POST['staff_id'];
-            
-            $stmt->bind_param('ssissiis', 
-                $_POST['name'],
-                $_POST['position'],
+            $name     = trim($_POST['name'] ?? '');
+            $position = trim($_POST['position'] ?? '');
+            $status   = in_array($_POST['status'] ?? '', ['Active', 'Inactive', 'Leave'], true) ? $_POST['status'] : 'Active';
+            $dept_id  = ($_POST['department_id'] ?? '') !== '' ? (int) $_POST['department_id'] : null;
+            $email    = trim($_POST['email'] ?? '') !== '' ? trim($_POST['email']) : null;
+            $phone    = trim($_POST['phone'] ?? '') !== '' ? trim($_POST['phone']) : null;
+            $staff_id = (int) ($_POST['staff_id'] ?? 0);
+            if ($staff_id <= 0 || $name === '' || $position === '') {
+                throw new Exception('Please complete all required fields.');
+            }
+
+            $stmt->bind_param(
+                'ssisssii',
+                $name,
+                $position,
                 $dept_id,
                 $email,
                 $phone,
-                $_POST['status'],
+                $status,
                 $staff_id,
                 $hospital_id
             );
@@ -96,7 +111,10 @@ try {
             if (!$stmt) {
                 throw new Exception('Database error: ' . $db->error);
             }
-            $staff_id = $_POST['staff_id'];
+            $staff_id = (int) ($_POST['staff_id'] ?? 0);
+            if ($staff_id <= 0) {
+                throw new Exception('Invalid staff member.');
+            }
             $stmt->bind_param('ii', $staff_id, $hospital_id);
             $stmt->execute();
             if ($stmt->error) {
@@ -123,6 +141,34 @@ try {
         $result = $stmt->get_result();
         $staff = $result->fetch_all(MYSQLI_ASSOC);
         $stmt->close();
+
+        // Departments this hospital actually offers (for the dropdown)
+        $dQuery = "SELECT d.id, d.name_en
+                     FROM hospital_departments hd
+                     JOIN departments d ON hd.department_id = d.id
+                    WHERE hd.hospital_id = ? AND hd.is_active = 1
+                    ORDER BY d.name_en";
+        $dStmt = $db->prepare($dQuery);
+        if ($dStmt) {
+            $dStmt->bind_param('i', $hospital_id);
+            $dStmt->execute();
+            $dept_options = $dStmt->get_result()->fetch_all(MYSQLI_ASSOC);
+            $dStmt->close();
+        }
+    }
+
+    // Optional edit target (?edit=<id>) — scoped to staff of this hospital.
+    $editId = $_SERVER['REQUEST_METHOD'] === 'GET' ? (int) ($_GET['edit'] ?? 0) : 0;
+    if ($editId > 0) {
+        foreach ($staff as $row) {
+            if ((int) $row['id'] === $editId) {
+                $editing = $row;
+                break;
+            }
+        }
+        if ($editing) {
+            $pageTitle = 'Edit Staff';
+        }
     }
 } catch (Exception $e) {
     $error = 'Error: ' . $e->getMessage();
@@ -142,55 +188,61 @@ require_once __DIR__ . '/../layouts/header.php';
             <div class="alert alert-success"><?php echo htmlspecialchars($success); ?></div>
         <?php endif; ?>
 
-        <!-- Add Staff Form -->
+        <!-- Add / Edit Staff Form -->
         <div class="form-card">
-            <h2 style="margin-bottom: 15px;">Add New Staff Member</h2>
+            <h2 style="margin-bottom: 15px;"><?php echo $editing ? 'Edit Staff Member' : 'Add New Staff Member'; ?></h2>
             <form method="POST" action="">
-                <input type="hidden" name="action" value="add_staff">
+                <?php echo csrf_field(); ?>
+                <input type="hidden" name="action" value="<?php echo $editing ? 'update_staff' : 'add_staff'; ?>">
+                <?php if ($editing): ?>
+                    <input type="hidden" name="staff_id" value="<?php echo (int) $editing['id']; ?>">
+                <?php endif; ?>
 
                 <div class="form-grid">
                     <div class="form-group">
                         <label for="name">Full Name *</label>
-                        <input type="text" id="name" name="name" required>
+                        <input type="text" id="name" name="name" required value="<?php echo htmlspecialchars($editing['name'] ?? ''); ?>">
                     </div>
 
                     <div class="form-group">
                         <label for="position">Position *</label>
-                        <input type="text" id="position" name="position" placeholder="e.g., Doctor, Nurse" required>
+                        <input type="text" id="position" name="position" placeholder="e.g., Doctor, Nurse" required value="<?php echo htmlspecialchars($editing['position'] ?? ''); ?>">
                     </div>
 
                     <div class="form-group">
                         <label for="department_id">Department</label>
                         <select id="department_id" name="department_id">
                             <option value="">Select Department</option>
-                            <option value="1">General Medicine</option>
-                            <option value="2">Emergency</option>
-                            <option value="3">Maternal Health</option>
-                            <option value="7">Cardiology</option>
+                            <?php foreach ($dept_options as $opt): ?>
+                                <option value="<?php echo (int) $opt['id']; ?>" <?php echo ((int) ($editing['department_id'] ?? 0) === (int) $opt['id']) ? 'selected' : ''; ?>><?php echo htmlspecialchars($opt['name_en']); ?></option>
+                            <?php endforeach; ?>
                         </select>
                     </div>
 
                     <div class="form-group">
                         <label for="email">Email</label>
-                        <input type="email" id="email" name="email">
+                        <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($editing['email'] ?? ''); ?>">
                     </div>
 
                     <div class="form-group">
                         <label for="phone">Phone</label>
-                        <input type="tel" id="phone" name="phone">
+                        <input type="tel" id="phone" name="phone" value="<?php echo htmlspecialchars($editing['phone'] ?? ''); ?>">
                     </div>
 
                     <div class="form-group">
                         <label for="status">Status</label>
                         <select id="status" name="status">
-                            <option value="Active">Active</option>
-                            <option value="Inactive">Inactive</option>
-                            <option value="Leave">Leave</option>
+                            <?php foreach (['Active', 'Inactive', 'Leave'] as $st): ?>
+                                <option value="<?php echo $st; ?>" <?php echo (($editing['status'] ?? 'Active') === $st) ? 'selected' : ''; ?>><?php echo $st; ?></option>
+                            <?php endforeach; ?>
                         </select>
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn-primary">Add Staff Member</button>
+                <button type="submit" class="btn btn-primary"><?php echo $editing ? 'Save Changes' : 'Add Staff Member'; ?></button>
+                <?php if ($editing): ?>
+                    <a href="?" class="btn btn-secondary">Cancel</a>
+                <?php endif; ?>
             </form>
         </div>
 
@@ -230,9 +282,11 @@ require_once __DIR__ . '/../layouts/header.php';
                                 </td>
                                 <td>
                                     <div class="action-btns">
+                                        <a class="action-btn" href="?edit=<?php echo (int) $member['id']; ?>" style="display: inline-block; text-decoration: none;">Edit</a>
                                         <form method="POST" style="display: inline;">
+                                            <?php echo csrf_field(); ?>
                                             <input type="hidden" name="action" value="delete_staff">
-                                            <input type="hidden" name="staff_id" value="<?php echo $member['id']; ?>">
+                                            <input type="hidden" name="staff_id" value="<?php echo (int) $member['id']; ?>">
                                             <button type="submit" class="action-btn" style="background: #f8d7da; color: #842029;" onclick="return confirm('Remove this staff member?')">Remove</button>
                                         </form>
                                     </div>

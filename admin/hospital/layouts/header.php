@@ -3,27 +3,9 @@
  * Hospital Admin Layout Header
  */
 
-// Ensure session is started
-if (session_status() == PHP_SESSION_NONE) {
-    session_start();
-}
-
-// Check authentication
-if (!isset($_SESSION['admin_id'])) {
-    header('Location: /smarthealth_nepal/admin/hospital/login.php');
-    exit;
-}
-
-// Set default session variables if missing
-if (!isset($_SESSION['access_type'])) {
-    $_SESSION['access_type'] = 'hospital';
-}
-if (!isset($_SESSION['hospital_id'])) {
-    $_SESSION['hospital_id'] = null;
-}
-if (!isset($_SESSION['admin_name'])) {
-    $_SESSION['admin_name'] = $_SESSION['admin_username'] ?? 'Admin';
-}
+// Central hospital-context resolution: handles session start, authentication
+// and hospital/role rehydration for every page that renders the panel chrome.
+require_once __DIR__ . '/../includes/context.php';
 
 // Get page title from variable
 $pageTitle = $pageTitle ?? 'Hospital Admin - SmartHealth Nepal';
@@ -34,7 +16,7 @@ $pageTitle = $pageTitle ?? 'Hospital Admin - SmartHealth Nepal';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo htmlspecialchars($pageTitle); ?></title>
-    <link rel="stylesheet" href="../../frontend/css/admin.css">
+    <link rel="stylesheet" href="/smarthealth_nepal/admin/frontend/css/admin.css">
     <style>
         /* ===== RESET & NORMALIZATION ===== */
         * {
@@ -50,7 +32,7 @@ $pageTitle = $pageTitle ?? 'Hospital Admin - SmartHealth Nepal';
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            background: #f4f6fa;
             color: #333;
             line-height: 1.6;
             font-size: 14px;
@@ -66,7 +48,7 @@ $pageTitle = $pageTitle ?? 'Hospital Admin - SmartHealth Nepal';
         /* ===== SIDEBAR ===== */
         .sidebar {
             width: 260px;
-            background: linear-gradient(180deg, #2c3e50 0%, #1a252f 100%);
+            background: linear-gradient(180deg, #12294a 0%, #0b1c33 100%);
             color: white;
             padding: 20px 0;
             overflow-y: auto;
@@ -134,16 +116,16 @@ $pageTitle = $pageTitle ?? 'Hospital Admin - SmartHealth Nepal';
         }
 
         .sidebar-menu a:hover {
-            background: rgba(102, 126, 234, 0.1);
+            background: rgba(21, 101, 192, 0.1);
             color: #fff;
-            border-left-color: #667eea;
+            border-left-color: #1565c0;
             padding-left: 22px;
         }
 
         .sidebar-menu a.active {
-            background: rgba(102, 126, 234, 0.3);
+            background: rgba(21, 101, 192, 0.3);
             color: #ffffff;
-            border-left-color: #667eea;
+            border-left-color: #1565c0;
             font-weight: 600;
         }
 
@@ -247,14 +229,14 @@ $pageTitle = $pageTitle ?? 'Hospital Admin - SmartHealth Nepal';
 
         .user-profile-btn:hover {
             background: linear-gradient(135deg, #eff2f7 0%, #e0e3e8 100%);
-            border-color: #667eea;
+            border-color: #1565c0;
         }
 
         .user-profile-icon {
             width: 32px;
             height: 32px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -300,7 +282,7 @@ $pageTitle = $pageTitle ?? 'Hospital Admin - SmartHealth Nepal';
 
         .dropdown-header {
             padding: 16px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%);
             color: white;
             display: flex;
             align-items: center;
@@ -372,7 +354,7 @@ $pageTitle = $pageTitle ?? 'Hospital Admin - SmartHealth Nepal';
 
         .dropdown-item:hover {
             background: #f9fafb;
-            color: #667eea;
+            color: #1565c0;
             padding-left: 20px;
         }
 
@@ -396,7 +378,7 @@ $pageTitle = $pageTitle ?? 'Hospital Admin - SmartHealth Nepal';
             flex: 1;
             overflow-y: auto;
             padding: 30px;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            background: #f4f6fa;
         }
 
         .dashboard-content::-webkit-scrollbar {
@@ -429,7 +411,7 @@ $pageTitle = $pageTitle ?? 'Hospital Admin - SmartHealth Nepal';
             padding: 25px;
             border-radius: 8px;
             box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-            border-left: 4px solid #667eea;
+            border-left: 4px solid #1565c0;
             transition: all 0.3s ease;
             cursor: default;
         }
@@ -534,8 +516,8 @@ $pageTitle = $pageTitle ?? 'Hospital Admin - SmartHealth Nepal';
         }
 
         .department-card:hover {
-            border-color: #667eea;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
+            border-color: #1565c0;
+            box-shadow: 0 4px 12px rgba(21, 101, 192, 0.1);
             transform: translateY(-2px);
         }
 
@@ -770,8 +752,8 @@ $pageTitle = $pageTitle ?? 'Hospital Admin - SmartHealth Nepal';
         .form-group select:focus,
         .form-group textarea:focus {
             outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+            border-color: #1565c0;
+            box-shadow: 0 0 0 4px rgba(21, 101, 192, 0.1);
             background: #f9fafb;
         }
 
@@ -797,14 +779,14 @@ $pageTitle = $pageTitle ?? 'Hospital Admin - SmartHealth Nepal';
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%);
             color: white;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 4px 12px rgba(21, 101, 192, 0.3);
         }
 
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 6px 16px rgba(21, 101, 192, 0.4);
         }
 
         .btn-primary:active {
@@ -890,60 +872,101 @@ $pageTitle = $pageTitle ?? 'Hospital Admin - SmartHealth Nepal';
 
         /* ===== LINKS ===== */
         a {
-            color: #667eea;
+            color: #1565c0;
             text-decoration: none;
             transition: all 0.3s ease;
         }
 
         a:hover {
             text-decoration: underline;
-            color: #764ba2;
+            color: #0d47a1;
+        }
+
+        /* ===== MOBILE NAVIGATION DRAWER ===== */
+        .sidebar-toggle {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: #fff;
+            border: 1px solid #e0e3e8;
+            border-radius: 6px;
+            padding: 8px 11px;
+            cursor: pointer;
+            font-size: 18px;
+            line-height: 1;
+            color: #2c3e50;
+        }
+
+        .sidebar-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.5);
+            z-index: 90;
+        }
+
+        .sidebar-backdrop.active {
+            display: block;
         }
 
         /* ===== RESPONSIVE ===== */
         @media (max-width: 768px) {
-            .admin-container {
-                flex-direction: column;
-            }
-
             .sidebar {
-                width: 100%;
-                max-height: 60px;
-                overflow-x: auto;
-                overflow-y: hidden;
-                padding: 0;
+                position: fixed;
+                top: 0;
+                left: 0;
+                bottom: 0;
+                width: 260px;
+                max-height: none;
+                overflow-y: auto;
+                transform: translateX(-100%);
+                transition: transform 0.25s ease;
+                z-index: 100;
             }
 
-            .sidebar-header,
-            .sidebar-menu li {
-                display: none;
+            .sidebar.open {
+                transform: translateX(0);
             }
 
-            .dashboard-grid {
-                grid-template-columns: 1fr;
+            .sidebar-toggle {
+                display: inline-flex;
             }
 
+            .dashboard-grid,
             .departments-grid {
                 grid-template-columns: 1fr;
             }
 
             .top-bar {
-                flex-direction: column;
-                gap: 10px;
-                align-items: flex-start;
+                flex-direction: row;
+                align-items: center;
+                gap: 12px;
+                padding: 12px 16px;
+            }
+
+            .top-bar-title {
+                flex: 1;
+                font-size: 18px;
             }
 
             .top-bar-actions {
-                width: 100%;
-                justify-content: space-between;
+                width: auto;
             }
 
             .dashboard-content {
-                padding: 20px;
+                padding: 16px;
             }
 
             .form-grid {
                 grid-template-columns: 1fr;
+            }
+
+            .user-profile-info {
+                display: none;
+            }
+
+            .user-profile-btn {
+                padding: 6px 10px;
             }
         }
 
@@ -966,7 +989,7 @@ $pageTitle = $pageTitle ?? 'Hospital Admin - SmartHealth Nepal';
 <body>
     <div class="admin-container">
         <!-- Sidebar -->
-        <div class="sidebar">
+        <div class="sidebar" id="hospitalSidebar">
             <div class="sidebar-header">
                 <h2>SmartHealth</h2>
                 <p><?php echo $_SESSION['access_type'] === 'super' ? 'Super Admin' : 'Hospital Admin'; ?></p>
@@ -983,10 +1006,17 @@ $pageTitle = $pageTitle ?? 'Hospital Admin - SmartHealth Nepal';
             </ul>
         </div>
 
+        <!-- Mobile navigation backdrop -->
+        <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="toggleSidebar(false)"></div>
+
         <!-- Main Content -->
         <div class="main-content">
             <!-- Top Bar -->
             <div class="top-bar">
+                <button type="button" class="sidebar-toggle" onclick="toggleSidebar()"
+                        aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="hospitalSidebar">
+                    <span aria-hidden="true">&#9776;</span>
+                </button>
                 <div class="top-bar-title">
                     <?php 
                     if (!empty($pageTitle)) {
